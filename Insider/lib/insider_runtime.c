@@ -14,16 +14,30 @@
 #define PAGE_SIZE (1 << 22)
 #define MMIO_SPACE_SIZE (1 << 25)
 #define ALLOCATED_BUF_NUM (8)
-#define VIRT_FILE_FD (0xFFFF)
 #define BUF_METADATA_IDX (1 << 21)
 #define MAX_EXTENT_NUM (32)
 #define PHYSICAL_SECTOR_SIZE (4096)
 
-#define APP_FILE_INFO_TAG (10)
-#define APP_BUF_ADDRS_TAG (11)
-#define APP_FREE_BUF_TAG (12)
-#define APP_INPUT_PARAM_TAG (13)
-#define RESET_TAG (14)
+#define APP_NUM (3)
+#define VIRT_FILE_FD_0 (0xFFF0)
+#define VIRT_FILE_FD_1 (0xFFF1)
+#define VIRT_FILE_FD_2 (0xFFF2)
+
+#define APP_FILE_INFO_0_TAG (16)
+#define APP_FILE_INFO_1_TAG (17)
+#define APP_FILE_INFO_2_TAG (18)
+#define APP_BUF_ADDRS_0_TAG (19)
+#define APP_BUF_ADDRS_1_TAG (20)
+#define APP_BUF_ADDRS_2_TAG (21)
+#define APP_FREE_BUF_0_TAG (22)
+#define APP_FREE_BUF_1_TAG (23)
+#define APP_FREE_BUF_2_TAG (24)
+#define APP_INPUT_PARAM_0_TAG (25)
+#define APP_INPUT_PARAM_1_TAG (26)
+#define APP_INPUT_PARAM_2_TAG (27)
+#define APP_RESET_0_TAG (28)
+#define APP_RESET_1_TAG (29)
+#define APP_RESET_2_TAG (30)
 
 #ifndef PAR_MEMCPY_WORKERS
 #define PAR_MEMCPY_WORKERS (1)
@@ -43,26 +57,54 @@ const char TOUCH_CMD[] = "touch ";
 int mmio_fd;
 void *mmio_space;
 
-void *app_bufs[ALLOCATED_BUF_NUM];
-int app_buf_fds[ALLOCATED_BUF_NUM];
-unsigned long long app_buf_phy_addrs[ALLOCATED_BUF_NUM];
+void *app_bufs[APP_NUM][ALLOCATED_BUF_NUM];
+int app_buf_fds[APP_NUM][ALLOCATED_BUF_NUM];
+unsigned long long app_buf_phy_addrs[APP_NUM][ALLOCATED_BUF_NUM];
 
-int app_bufs_ptr = 0;
-int is_eop = 0;
-int buf_idx = 0;
-int buf_len = 0;
-int file_finish_reading = 0;
-int first = 1;
+int app_bufs_ptr[APP_NUM];
+int is_eop[APP_NUM];
+int buf_idx[APP_NUM];
+int buf_len[APP_NUM];
+int file_finish_reading[APP_NUM];
+int first[APP_NUM];
 
-void send_input_params(unsigned int data) {
-  *((volatile unsigned int *)mmio_space + APP_INPUT_PARAM_TAG) = data;
+int send_input_params(int fd, unsigned int data) {
+  int app_input_param_tag;
+  if (fd == VIRT_FILE_FD_0) {
+    app_input_param_tag = APP_INPUT_PARAM_0_TAG;    
+  }
+  else if (fd == VIRT_FILE_FD_1) {
+    app_input_param_tag = APP_INPUT_PARAM_1_TAG;
+  }
+  else if (fd == VIRT_FILE_FD_2) {
+    app_input_param_tag = APP_INPUT_PARAM_2_TAG;
+  }
+  else {
+    return -1;
+  }
+  *((volatile unsigned int *)mmio_space + app_input_param_tag) = data;
+  return 0;
 }
 
-void send_input_params_array(unsigned int *data_arr, size_t arr_len) {
+int send_input_params_array(int fd, unsigned int *data_arr, size_t arr_len) {
+  int app_input_param_tag;
+  if (fd == VIRT_FILE_FD_0) {
+    app_input_param_tag = APP_INPUT_PARAM_0_TAG;    
+  }
+  else if (fd == VIRT_FILE_FD_1) {
+    app_input_param_tag = APP_INPUT_PARAM_1_TAG;
+  }
+  else if (fd == VIRT_FILE_FD_2) {
+    app_input_param_tag = APP_INPUT_PARAM_2_TAG;
+  }
+  else {
+    return -1;
+  }
   int i = 0;
   for (i = 0; i < arr_len; i ++) {
-    *((volatile unsigned int *)mmio_space + APP_INPUT_PARAM_TAG) = data_arr[i];
+    *((volatile unsigned int *)mmio_space + app_input_param_tag) = data_arr[i];
   }
+  return 0;
 }
 
 __inline__ static void send_control_msg(int tag, unsigned int data) {
@@ -204,13 +246,15 @@ static void setup_mmio(void) {
   }
 }
 
-__inline__ static void update_metadata(void) {
+__inline__ static void update_metadata(int app_id) {
   unsigned int metadata = 0, flag = 0;
   volatile unsigned char *flag_ptr;
   volatile unsigned char *metadata_ptr;
   do {
-    metadata_ptr = (volatile unsigned char *)(app_bufs[app_bufs_ptr] + BUF_METADATA_IDX);
-    flag_ptr = (volatile unsigned char *)(app_bufs[app_bufs_ptr] + BUF_METADATA_IDX + sizeof(unsigned int));
+    metadata_ptr = (volatile unsigned char *)(app_bufs[app_id][app_bufs_ptr[app_id]] + 
+					      BUF_METADATA_IDX);
+    flag_ptr = (volatile unsigned char *)(app_bufs[app_id][app_bufs_ptr[app_id]] + 
+					  BUF_METADATA_IDX + sizeof(unsigned int));
     flag = 
       ((*(flag_ptr + 3)) << 24) |
       ((*(flag_ptr + 2)) << 16) |
@@ -224,8 +268,8 @@ __inline__ static void update_metadata(void) {
   }
   while (!(flag));
   *flag_ptr = *(flag_ptr + 1) = *(flag_ptr + 2) = *(flag_ptr + 3) = 0;
-  buf_len = metadata >> 1;
-  is_eop = metadata & 0x1;
+  buf_len[app_id] = metadata >> 1;
+  is_eop[app_id] = metadata & 0x1;
 }
 
 const char *reg_virt_file(const char *real_path) {
@@ -272,12 +316,30 @@ const char *reg_virt_file(const char *real_path) {
   return absolute_virt_file_path;
 }
 
-int iopen(const char *pathname, int flags) {
+int iopen(int app_id, const char *pathname, int flags) {
   unsigned int num_extents;
   unsigned int *extents_start_arr = malloc(sizeof(unsigned int) * MAX_EXTENT_NUM);
   unsigned int *extents_len_arr = malloc(sizeof(unsigned int) * MAX_EXTENT_NUM);
   unsigned long long length;
   long long offset;
+  int app_file_info_tag, app_buf_addrs_tag;
+  
+  if (app_id == 0) {
+    app_file_info_tag = APP_FILE_INFO_0_TAG;
+    app_buf_addrs_tag = APP_BUF_ADDRS_0_TAG;
+  }
+  else if (app_id == 1) {
+    app_file_info_tag = APP_FILE_INFO_1_TAG;
+    app_buf_addrs_tag = APP_BUF_ADDRS_1_TAG;
+  }
+  else if (app_id == 2) {
+    app_file_info_tag = APP_FILE_INFO_2_TAG;
+    app_buf_addrs_tag = APP_BUF_ADDRS_2_TAG;
+  }
+  else {
+    return -1;
+  }
+
   if (!is_virtual_file(pathname, &num_extents, extents_start_arr, extents_len_arr, &length)) {
     return -1;
   }
@@ -285,34 +347,47 @@ int iopen(const char *pathname, int flags) {
     int i;
     setup_mmio();
     for (i = 0; i < ALLOCATED_BUF_NUM; i ++) {
-      app_bufs[i] = allocate_kernel_buf(&app_buf_fds[i]);
-      app_buf_phy_addrs[i] = *((unsigned long long *)app_bufs[i]);
-      send_control_msg(APP_BUF_ADDRS_TAG, app_buf_phy_addrs[i] >> 32);
-      send_control_msg(APP_BUF_ADDRS_TAG, app_buf_phy_addrs[i] & 0xFFFFFFFF);
+      app_bufs[app_id][i] = allocate_kernel_buf(&app_buf_fds[app_id][i]);
+      app_buf_phy_addrs[app_id][i] = *((unsigned long long *)app_bufs[app_id][i]);
+      send_control_msg(app_buf_addrs_tag, app_buf_phy_addrs[app_id][i] >> 32);
+      send_control_msg(app_buf_addrs_tag, app_buf_phy_addrs[app_id][i] & 0xFFFFFFFF);
     }
-    send_control_msg(APP_FILE_INFO_TAG, num_extents);
-    send_control_msg(APP_FILE_INFO_TAG, length >> 32);
-    send_control_msg(APP_FILE_INFO_TAG, length & 0xFFFFFFFF);
+    send_control_msg(app_file_info_tag, num_extents);
+    send_control_msg(app_file_info_tag, length >> 32);
+    send_control_msg(app_file_info_tag, length & 0xFFFFFFFF);
     offset = length;
     for (i = 0; i < num_extents; i ++) {
       unsigned long long extents_start_in_byte = ((unsigned long long)extents_start_arr[i]) * PHYSICAL_SECTOR_SIZE;      
-      send_control_msg(APP_FILE_INFO_TAG, extents_start_in_byte >> 32);
-      send_control_msg(APP_FILE_INFO_TAG, extents_start_in_byte & 0xFFFFFFFF);
+      send_control_msg(app_file_info_tag, extents_start_in_byte >> 32);
+      send_control_msg(app_file_info_tag, extents_start_in_byte & 0xFFFFFFFF);
       unsigned long long extents_len_in_byte = ((unsigned long long)extents_len_arr[i]) * PHYSICAL_SECTOR_SIZE;
       offset -= extents_len_in_byte;
       extents_len_in_byte += (offset > 0) ? 0 : offset;
-      send_control_msg(APP_FILE_INFO_TAG, extents_len_in_byte >> 32);
-      send_control_msg(APP_FILE_INFO_TAG, extents_len_in_byte & 0xFFFFFFFF);
+      send_control_msg(app_file_info_tag, extents_len_in_byte >> 32);
+      send_control_msg(app_file_info_tag, extents_len_in_byte & 0xFFFFFFFF);
     }
   }
-  file_finish_reading = 0;
-  first = 1;
-  return VIRT_FILE_FD;
+  app_bufs_ptr[app_id] = is_eop[app_id] = buf_idx[app_id] = buf_len[app_id] 
+    = file_finish_reading[app_id] = 0;
+  first[app_id] = 1;
+
+  int fd;
+  if (app_id == 0) {
+    fd = VIRT_FILE_FD_0;
+  }
+  else if (app_id == 1) {
+    fd = VIRT_FILE_FD_1;
+  }
+  else if (app_id == 2) {
+    fd = VIRT_FILE_FD_2;
+  }
+  return fd;
 }
 
-void reset(void) {
-  app_bufs_ptr = is_eop = buf_idx = buf_len = 0;
-  first = 1;
+void reset(int app_id) {
+  app_bufs_ptr[app_id] = is_eop[app_id] = buf_idx[app_id] = buf_len[app_id] 
+    = file_finish_reading[app_id] = 0;
+  first[app_id] = 1;
 }
 
 void parallel_memcpy(void *dest, const void *src, size_t n) {
@@ -327,59 +402,84 @@ void parallel_memcpy(void *dest, const void *src, size_t n) {
 }
 
 ssize_t iread(int fd, void *buf, size_t count) {
-  if (fd == VIRT_FILE_FD) {
-    if (file_finish_reading) {
-      return 0;
-    }
-    else if (first) {
-      update_metadata();
-      first = 0;
-    }
-    unsigned char *app_buf = (unsigned char *)app_bufs[app_bufs_ptr];
-    ssize_t read_size;
-    if (count >= buf_len - buf_idx) {
-      read_size = buf_len - buf_idx;
-      if (is_eop) {
-	file_finish_reading = 1;
-	reset();
-	parallel_memcpy(buf, app_buf + buf_idx, read_size);
-      }
-      else {
-	parallel_memcpy(buf, app_buf + buf_idx, read_size);
-	send_control_msg(APP_FREE_BUF_TAG, 0);
-	app_bufs_ptr = (app_bufs_ptr + 1) & (ALLOCATED_BUF_NUM - 1);	
-	buf_idx = 0;
-	update_metadata();
-      }
-    }
-    else {
-      read_size = count;
-      buf_idx += read_size;
-      parallel_memcpy(buf, app_buf + buf_idx, read_size);
-    }
-    return read_size;
+  int app_id;
+  int app_free_buf_tag;
+  if (fd == VIRT_FILE_FD_0) {
+    app_id = 0;
+    app_free_buf_tag = APP_FREE_BUF_0_TAG;
+  } 
+  else if (fd == VIRT_FILE_FD_1) {
+    app_id = 1;
+    app_free_buf_tag = APP_FREE_BUF_1_TAG;
+  }
+  else if (fd == VIRT_FILE_FD_2) {
+    app_id = 2;
+    app_free_buf_tag = APP_FREE_BUF_2_TAG;
   }
   else {
     return -1;
   }
+
+  if (file_finish_reading[app_id]) {
+    return 0;
+  }
+  else if (first[app_id]) {
+    update_metadata(app_id);
+    first[app_id] = 0;
+  }
+  unsigned char *app_buf = 
+    (unsigned char *)app_bufs[app_id][app_bufs_ptr[app_id]];
+  ssize_t read_size;
+  if (count >= buf_len[app_id] - buf_idx[app_id]) {
+    read_size = buf_len[app_id] - buf_idx[app_id];
+    if (is_eop[app_id]) {
+      file_finish_reading[app_id] = 1;
+      reset(app_id);
+      parallel_memcpy(buf, app_buf + buf_idx[app_id], read_size);
+    }
+    else {
+      parallel_memcpy(buf, app_buf + buf_idx[app_id], read_size);
+      send_control_msg(app_free_buf_tag, 0);
+      app_bufs_ptr[app_id] = (app_bufs_ptr[app_id] + 1) & (ALLOCATED_BUF_NUM - 1);
+      buf_idx[app_id] = 0;
+      update_metadata(app_id);
+    }
+  }
+  else {
+    read_size = count;
+    buf_idx[app_id] += read_size;
+    parallel_memcpy(buf, app_buf + buf_idx[app_id], read_size);
+  }
+  return read_size;
 }
 
 int iclose(int fd) {
-  if (fd == VIRT_FILE_FD) {
-    int i;
-    for (i = 0; i < ALLOCATED_BUF_NUM; i ++) {
-      if (app_buf_fds[i] > 0) {
-  	close(app_buf_fds[i]);
-      }
-    }
-    if (mmio_fd) {
-      close(mmio_fd);
-    }
-    send_control_msg(RESET_TAG, 0);
-    return 0;
+  int app_id, app_reset_tag;
+  if (fd == VIRT_FILE_FD_0) {
+    app_id = 0;
+    app_reset_tag = APP_RESET_0_TAG;
+  }
+  else if (fd == VIRT_FILE_FD_1) {
+    app_id = 1;
+    app_reset_tag = APP_RESET_1_TAG;
+  }
+  else if (fd == VIRT_FILE_FD_2) {
+    app_id = 2;
+    app_reset_tag = APP_RESET_2_TAG;
   }
   else {
     return -1;
   }
+
+  int i;
+  for (i = 0; i < ALLOCATED_BUF_NUM; i ++) {
+    if (app_buf_fds[app_id][i] > 0) {
+      close(app_buf_fds[app_id][i]);
+    }
+  }
+  if (mmio_fd) {
+    close(mmio_fd);
+  }
+  send_control_msg(app_reset_tag, 0);
   return 0;
 }
