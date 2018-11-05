@@ -247,8 +247,6 @@ void interconnects() {
 				    device_dram_read_resp, device_dram_read_resp_0, 
 				    device_dram_read_resp_1, device_dram_read_resp_2);
 
-  // TODO: multiplex three device_dram_read _{req/resp} signals.
-
   dram_read_throttle_unit(drive_read_throttle_params,
                           before_throttle_unified_dram_read_resp,
                           after_throttle_unified_dram_read_resp);

@@ -42,9 +42,7 @@ void dram_helper_app_0(
   unsigned int num_issued = 0;
   bool finish_issuing = false;
 
-  unsigned char init_credit = APP_INIT_CREDIT;
   unsigned char buffered_resp_size = 0;
-  bool should_replenish_req = false;
 
   while (1) {
 #pragma HLS pipeline
@@ -153,14 +151,11 @@ void dram_helper_app_0(
 	bool dummy;
         if (buf_read_sig_app_input_data.read_nb(dummy)) {
           buffered_resp_size --;
-          if ((buffered_resp_size << 1) < APP_DRAM_RESP_BUFFER_SIZE) {
-            should_replenish_req = true;
-          }
         }
 
-        if (init_credit || should_replenish_req) {
+	bool should_replenish_req = (buffered_resp_size + DRAM_READ_BATCH_NUM < APP_DRAM_RESP_BUFFER_SIZE);
+        if (should_replenish_req) {
           if (device_dram_read_req.write_nb(read_req)) {
-            init_credit --;
             buffered_resp_size += DRAM_READ_BATCH_NUM;
             num_issued += read_req.num;
             cur_extent = next_cur_extent;
