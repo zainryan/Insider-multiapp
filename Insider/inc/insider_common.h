@@ -25,7 +25,6 @@
 #define APP_RESET_0_TAG (28)
 #define APP_RESET_1_TAG (29)
 #define APP_RESET_2_TAG (30)
-#define APP_INIT_CREDIT (2)
 #define READ_CMD_TAG_OFFSET (64)
 #define WRITE_CMD_TAG_OFFSET (128)
 

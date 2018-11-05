@@ -3,6 +3,7 @@
 
 #include <staccel_itc.h>
 #include <insider_common.h>
+#include <iostream>
 
 #ifdef CSIM
 #include <vector>
@@ -233,8 +234,8 @@ int iclose(int fd) {
 
 void set_physical_file(int app_id, unsigned char *buf, size_t count) {
   if (count > MAX_PHYSICAL_FILE_SIZE) {
-    cerr << "In set_physical_file(), count is larger than "
-      "MAX_PHYSICAL_FILE_SIZE." << endl;
+    std::cerr << "In set_physical_file(), count is larger than "
+      "MAX_PHYSICAL_FILE_SIZE." << std::endl;
     return;
   }
   int app_file_info_tag;
