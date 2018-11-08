@@ -177,18 +177,12 @@ __always_inline static void disk_complete_req(int part_id, int *used_slots_count
   int local_req_slot, global_req_slot;
   volatile u8 *fin_flag;
   unsigned long long clear_bitmap = 0;
-  int cnt = 0;
 
   for (i = 0; i < *used_slots_count; i ++) {
     local_req_slot = used_slots[i];
     global_req_slot = GET_GLOBAL_SLOT_ID(part_id, local_req_slot);
     fin_flag = &kbufs[global_req_slot][PHYSICAL_SECTOR_SIZE];
-    while (!(*fin_flag)) {
-      cnt ++;
-      if (cnt > 1000000) {
-	break;
-      }
-    }
+    while (!(*fin_flag));
     *fin_flag = 0;
     if (req_types[local_req_slot] == READ_TYPE) {
       memcpy(trans_buf_addrs[local_req_slot], kbufs[global_req_slot], trans_buf_sectors[local_req_slot] * LOGICAL_SECTOR_SIZE);    
