@@ -92,6 +92,7 @@ void dram_helper_app(
 	  APP_Data app_data;
 	  app_data.data = read_resp.data;
 	  app_data.eop = false;
+	  app_data.len = DATA_BUS_WIDTH;
 	  if (num_issued == num_read && finish_issuing) {
 	    app_data.eop = true;
 	    app_data.len = length & (DATA_BUS_WIDTH - 1);
