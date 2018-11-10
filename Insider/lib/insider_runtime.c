@@ -432,9 +432,9 @@ ssize_t iread(int fd, void *buf, size_t count) {
   if (count >= buf_len[app_id] - buf_idx[app_id]) {
     read_size = buf_len[app_id] - buf_idx[app_id];
     if (is_eop[app_id]) {
+      parallel_memcpy(buf, app_buf + buf_idx[app_id], read_size);
       file_finish_reading[app_id] = 1;
       reset(app_id);
-      parallel_memcpy(buf, app_buf + buf_idx[app_id], read_size);
     }
     else {
       parallel_memcpy(buf, app_buf + buf_idx[app_id], read_size);
@@ -446,8 +446,8 @@ ssize_t iread(int fd, void *buf, size_t count) {
   }
   else {
     read_size = count;
-    buf_idx[app_id] += read_size;
     parallel_memcpy(buf, app_buf + buf_idx[app_id], read_size);
+    buf_idx[app_id] += read_size;
   }
   return read_size;
 }
