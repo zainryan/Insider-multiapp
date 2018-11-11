@@ -36,8 +36,9 @@ void app_pt_1(ST_Queue<bool> &reset_app_pt_1,
       APP_Data data;
       state++;
       if (state == PROCESSING_PERIOD) {
-	app_input_data.read(data);
-	app_output_data.write(data);
+	if (app_input_data.read_nb(data)) {
+	  app_output_data.write(data);
+	}
 	state = 0;
       }
     }

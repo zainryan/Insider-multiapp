@@ -6,17 +6,28 @@
 void buf_app_input_data_forwarder_0(
 				    ST_Queue<APP_Data> &buf_app_input_data,
 				    ST_Queue<bool> &buf_read_sig_app_input_data,
-				    ST_Queue<APP_Data> &app_input_data
+				    ST_Queue<APP_Data> &app_input_data,
+				    ST_Queue<bool> &reset_buf_app_input_data_forwarder_0
 				    ) {
   APP_Data app_data;
-  bool valid_app_data = false;
+  bool reset = false;
+  unsigned reset_cnt = 0;
 
   while (1) {
 #pragma HLS pipeline
-    if (valid_app_data || 
-	(valid_app_data = buf_app_input_data.read_nb(app_data))) {
-      if (app_input_data.write_nb(app_data)) {
-	valid_app_data = false;
+    bool dummy;
+    if (reset || (reset = reset_buf_app_input_data_forwarder_0.read_nb(dummy))) {
+      APP_Data dummy0;
+      buf_app_input_data.read_nb(dummy0);
+      reset_cnt++;
+      if (reset_cnt == RESET_CNT) {
+        reset_cnt = 0;
+        reset = false;
+      }
+    }
+    else {
+      if (buf_app_input_data.read_nb(app_data)) {
+	app_input_data.write(app_data);
 	buf_read_sig_app_input_data.write_nb(true);
       }
     }

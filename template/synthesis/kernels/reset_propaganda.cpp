@@ -17,7 +17,10 @@ void reset_propaganda(ST_Queue<bool> &reset_sigs_0,
 		      ST_Queue<bool> &reset_pcie_helper_app_2,
                       ST_Queue<bool> &reset_pcie_data_splitter_app_0,
 		      ST_Queue<bool> &reset_pcie_data_splitter_app_1,
-		      ST_Queue<bool> &reset_pcie_data_splitter_app_2) {
+		      ST_Queue<bool> &reset_pcie_data_splitter_app_2,
+		      ST_Queue<bool> &reset_buf_app_input_data_forwarder_0,
+		      ST_Queue<bool> &reset_buf_app_input_data_forwarder_1,
+		      ST_Queue<bool> &reset_buf_app_input_data_forwarder_2) {
   while (1) {
 #pragma HLS pipeline
     bool dummy;
@@ -26,6 +29,7 @@ void reset_propaganda(ST_Queue<bool> &reset_sigs_0,
       reset_dram_helper_app_0.write(0);
       reset_pcie_helper_app_0.write(0);
       reset_pcie_data_splitter_app_0.write(0);
+      reset_buf_app_input_data_forwarder_0.write(0);
     }
 
     if (reset_sigs_1.read_nb(dummy)) {
@@ -33,6 +37,7 @@ void reset_propaganda(ST_Queue<bool> &reset_sigs_0,
       reset_dram_helper_app_1.write(0);
       reset_pcie_helper_app_1.write(0);
       reset_pcie_data_splitter_app_1.write(0);
+      reset_buf_app_input_data_forwarder_1.write(0);
     }
 
     if (reset_sigs_2.read_nb(dummy)) {
@@ -40,6 +45,7 @@ void reset_propaganda(ST_Queue<bool> &reset_sigs_0,
       reset_dram_helper_app_2.write(0);
       reset_pcie_helper_app_2.write(0);
       reset_pcie_data_splitter_app_2.write(0);
+      reset_buf_app_input_data_forwarder_2.write(0);
     }    
   }
 }

@@ -1,10 +1,11 @@
 #include <iostream>
-
 #include <insider_itc.h>
 
 #include "app_pt_0.cpp"
 #include "app_pt_1.cpp"
 #include "app_pt_2.cpp"
+
+#include "insider_itc.h"
 
 #include "buf_app_input_data_forwarder_0.cpp"
 #include "buf_app_input_data_forwarder_1.cpp"
@@ -41,7 +42,7 @@
 #include "pipeline_data_passer.cpp"
 #include "reset_propaganda.cpp"
 
-#define READ_BUF_SIZE (2 * 1024 * 1024)
+#define READ_BUF_SIZE (1024 * 1024 * 2)
 
 using namespace std;
 
@@ -184,6 +185,9 @@ int main() {
   ST_Queue<bool> reset_pcie_data_splitter_app_0(4);
   ST_Queue<bool> reset_pcie_data_splitter_app_1(4);
   ST_Queue<bool> reset_pcie_data_splitter_app_2(4);
+  ST_Queue<bool> reset_buf_app_input_data_forwarder_0(4);
+  ST_Queue<bool> reset_buf_app_input_data_forwarder_1(4);
+  ST_Queue<bool> reset_buf_app_input_data_forwarder_2(4);
 
   ST_Queue<bool> reset_app_pt_0(4);
   ST_Queue<bool> reset_app_pt_1(4);
@@ -341,13 +345,16 @@ int main() {
       std::ref(buf_read_sig_app_input_data_2));
   std::thread t24(
       buf_app_input_data_forwarder_0, std::ref(buf_app_input_data_0),
-      std::ref(buf_read_sig_app_input_data_0), std::ref(app_input_data_0));
+      std::ref(buf_read_sig_app_input_data_0), std::ref(app_input_data_0),
+      std::ref(reset_buf_app_input_data_forwarder_0));
   std::thread t25(
       buf_app_input_data_forwarder_1, std::ref(buf_app_input_data_1),
-      std::ref(buf_read_sig_app_input_data_1), std::ref(app_input_data_1));
+      std::ref(buf_read_sig_app_input_data_1), std::ref(app_input_data_1),
+      std::ref(reset_buf_app_input_data_forwarder_1));
   std::thread t26(
       buf_app_input_data_forwarder_2, std::ref(buf_app_input_data_2),
-      std::ref(buf_read_sig_app_input_data_2), std::ref(app_input_data_2));
+      std::ref(buf_read_sig_app_input_data_2), std::ref(app_input_data_2),
+      std::ref(reset_buf_app_input_data_forwarder_2));
   std::thread t27(pcie_helper_app_0, std::ref(app_buf_addrs_0),
                   std::ref(device_pcie_write_req_apply_0),
                   std::ref(device_pcie_write_req_data_0),
@@ -387,7 +394,10 @@ int main() {
       std::ref(reset_pcie_helper_app_1), std::ref(reset_pcie_helper_app_2),
       std::ref(reset_pcie_data_splitter_app_0),
       std::ref(reset_pcie_data_splitter_app_1),
-      std::ref(reset_pcie_data_splitter_app_2));
+      std::ref(reset_pcie_data_splitter_app_2),
+      std::ref(reset_buf_app_input_data_forwarder_0),
+      std::ref(reset_buf_app_input_data_forwarder_1),
+      std::ref(reset_buf_app_input_data_forwarder_2));
   std::thread t34(app_pt_0, std::ref(reset_app_pt_0),
                   std::ref(app_input_data_0), std::ref(app_output_data_0),
                   std::ref(app_input_params_0));
@@ -404,13 +414,14 @@ int main() {
   std::thread t41(fpga_dramD_simulator);
 
   simulator();
+
   while (1)
     ;
 }
 
-unsigned char app_input_data_0[384000];
-unsigned char app_input_data_1[192000];
-unsigned char app_input_data_2[128000];
+unsigned char app_input_data_0[328000];
+unsigned char app_input_data_1[168000];
+unsigned char app_input_data_2[245000];
 
 char random_char() {
   int min_ascii = 65;
@@ -459,19 +470,21 @@ void sub_simulation_function(int app_id) {
     while (read_bytes != READ_BUF_SIZE) {
       int tmp = iread(fd, buf, READ_BUF_SIZE - read_bytes);
       if (!tmp) {
-  	fin_file = true;
-  	break;
+	fin_file = true;
+	break;
       }
       else {
-  	read_bytes += tmp;
+	read_bytes += tmp;
       }
     }
     for (int i = 0; i < read_bytes; i++) {
       if (buf[i] != ptr_app_input_data[total_read_bytes + i]) {
-      	cout << "Failed." << endl;
-      	cout << "app_id = " << app_id << ", real = " << (int)buf[i] 
+	cout << "Failed." << endl;
+	cout << "app_id = " << app_id
+	     << ", index = " << total_read_bytes + i
+	     << ", real = " << (int)buf[i] 
 	     << ", expected = " << (int)ptr_app_input_data[total_read_bytes + i] << endl;
-      	exit(-1);
+	exit(-1);
       }
     }
     total_read_bytes += read_bytes;
@@ -500,9 +513,7 @@ void user_simulation_function() {
   t0.join();
   t1.join();
   t2.join();
-  
-  puts("TEST PASSED.");
 
-  while (1)
-    ;
+  sleep(1);
+  puts("TEST PASSED.");
 }

@@ -59,6 +59,7 @@ void dram_helper_app_2(
       num_read = 0;
       num_issued = 0;
       finish_issuing = false;
+      buffered_resp_size = 0;
 
       unsigned int dummy0;
       app_file_infos.read_nb(dummy0);

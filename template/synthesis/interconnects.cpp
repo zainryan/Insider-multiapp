@@ -180,6 +180,9 @@ void interconnects() {
   ST_Queue<bool> reset_pcie_data_splitter_app_0(4);
   ST_Queue<bool> reset_pcie_data_splitter_app_1(4);
   ST_Queue<bool> reset_pcie_data_splitter_app_2(4);
+  ST_Queue<bool> reset_buf_app_input_data_forwarder_0(4);
+  ST_Queue<bool> reset_buf_app_input_data_forwarder_1(4);
+  ST_Queue<bool> reset_buf_app_input_data_forwarder_2(4);
 
   command_handler(poke, reqs_incoming, kbuf_addrs, dma_read_throttle_params,
                   dma_write_throttle_params, drive_read_delay_cycle_cnts,
@@ -296,11 +299,11 @@ void interconnects() {
 		    buf_app_input_data_2, buf_read_sig_app_input_data_2);
 
   buf_app_input_data_forwarder_0(buf_app_input_data_0, buf_read_sig_app_input_data_0,
-			       app_input_data_0);
+				 app_input_data_0, reset_buf_app_input_data_forwarder_0);
   buf_app_input_data_forwarder_1(buf_app_input_data_1, buf_read_sig_app_input_data_1,
-			       app_input_data_1);
+				 app_input_data_1, reset_buf_app_input_data_forwarder_1);
   buf_app_input_data_forwarder_2(buf_app_input_data_2, buf_read_sig_app_input_data_2,
-			       app_input_data_2);
+				 app_input_data_2, reset_buf_app_input_data_forwarder_2);
 
   pcie_helper_app_0(app_buf_addrs_0, device_pcie_write_req_apply_0,
                   device_pcie_write_req_data_0, app_output_data_splitted_0,
@@ -328,7 +331,8 @@ void interconnects() {
 		   reset_dram_helper_app_0, reset_dram_helper_app_1, reset_dram_helper_app_2,
                    reset_pcie_helper_app_0, reset_pcie_helper_app_1, reset_pcie_helper_app_2,
 		   reset_pcie_data_splitter_app_0, reset_pcie_data_splitter_app_1, 
-		   reset_pcie_data_splitter_app_2);
+		   reset_pcie_data_splitter_app_2, reset_buf_app_input_data_forwarder_0,
+		   reset_buf_app_input_data_forwarder_1, reset_buf_app_input_data_forwarder_2);
 
   ;
   app_pt_0(reset_app_pt_0, app_input_data_0, app_output_data_0, app_input_params_0);
