@@ -371,7 +371,7 @@ int iopen(int app_id, const char *pathname, int flags) {
     = file_finish_reading[app_id] = 0;
   first[app_id] = 1;
 
-  int fd;
+  int fd = 0;
   if (app_id == 0) {
     fd = VIRT_FILE_FD_0;
   }
@@ -385,8 +385,7 @@ int iopen(int app_id, const char *pathname, int flags) {
 }
 
 void reset(int app_id) {
-  app_bufs_ptr[app_id] = is_eop[app_id] = buf_idx[app_id] = buf_len[app_id] 
-    = file_finish_reading[app_id] = 0;
+  app_bufs_ptr[app_id] = is_eop[app_id] = buf_idx[app_id] = buf_len[app_id] = 0;
   first[app_id] = 1;
 }
 
@@ -433,9 +432,9 @@ ssize_t iread(int fd, void *buf, size_t count) {
   if (count >= buf_len[app_id] - buf_idx[app_id]) {
     read_size = buf_len[app_id] - buf_idx[app_id];
     if (is_eop[app_id]) {
+      parallel_memcpy(buf, app_buf + buf_idx[app_id], read_size);
       file_finish_reading[app_id] = 1;
       reset(app_id);
-      parallel_memcpy(buf, app_buf + buf_idx[app_id], read_size);
     }
     else {
       parallel_memcpy(buf, app_buf + buf_idx[app_id], read_size);
@@ -447,8 +446,8 @@ ssize_t iread(int fd, void *buf, size_t count) {
   }
   else {
     read_size = count;
-    buf_idx[app_id] += read_size;
     parallel_memcpy(buf, app_buf + buf_idx[app_id], read_size);
+    buf_idx[app_id] += read_size;
   }
   return read_size;
 }
