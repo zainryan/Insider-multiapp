@@ -1,3 +1,0 @@
-#!/bin/bash
-
-gcc -fopenmp -lpthread -linsider_runtime -I/usr/include/insider $@
