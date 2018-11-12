@@ -46,7 +46,6 @@ void pcie_write_multiplexer(
       else if (host_data_pcie_write_req_apply.read_nb(req_apply)) {
 	state = 1;
 	pcie_write_req_apply.write(req_apply);
-
       }
       else if (device_pcie_write_req_apply_0.read_nb(req_apply)) {
 	state = 4;

@@ -95,39 +95,39 @@ void user_simulation_function() {
     for (i = 0; i < APP_NUM; i++) {
       unsigned char* ptr_app_input_data;
       if (i == 0) {
-  	ptr_app_input_data = app_input_data_0;
+	ptr_app_input_data = app_input_data_0;
       }
       else if (i == 1) {
-  	ptr_app_input_data = app_input_data_1;
+	ptr_app_input_data = app_input_data_1;
       }
       else if (i == 2) {
-  	ptr_app_input_data = app_input_data_2;
+	ptr_app_input_data = app_input_data_2;
       }
       if (!fin_file[i]) {
-  	int read_bytes = 0;
-  	while (read_bytes != READ_BUF_SIZE) {
-  	  int tmp = iread(fd[i], buf, READ_BUF_SIZE - read_bytes);
-  	  if (!tmp) {
+	int read_bytes = 0;
+	while (read_bytes != READ_BUF_SIZE) {
+	  int tmp = iread(fd[i], buf, READ_BUF_SIZE - read_bytes);
+	  if (!tmp) {
 	    printf("file %d fin.\n", i);
-  	    fin_file[i] = 1;
+	    fin_file[i] = 1;
 	    fin_file_num++;
-  	    break;
-  	  }
-  	  else {
-  	    read_bytes += tmp;
-  	  }
-  	}
-  	printf("read_bytes = %d\n", read_bytes);
-  	for (j = 0; j < read_bytes; j++) {
+	    break;
+	  }
+	  else {
+	    read_bytes += tmp;
+	  }
+	}
+	printf("read_bytes = %d\n", read_bytes);
+	for (j = 0; j < read_bytes; j++) {
 	  int idx = total_read_bytes[i] + j;
-  	  if (buf[j] != ptr_app_input_data[idx]) {
-  	    printf("app id = %d, index = %d, real = %d, expected = %d\n",
+	  if (buf[j] != ptr_app_input_data[idx]) {
+	    printf("app id = %d, index = %d, real = %d, expected = %d\n",
 		   i, idx, (int)buf[j], (int)ptr_app_input_data[idx]);
-  	    puts("Failed!");
-  	    exit(-1);
-  	  }
-  	}
-  	total_read_bytes[i] += read_bytes;
+	    puts("Failed!");
+	    exit(-1);
+	  }
+	}
+	total_read_bytes[i] += read_bytes;
       }
     }
   }

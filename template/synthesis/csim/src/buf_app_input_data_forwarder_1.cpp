@@ -10,7 +10,6 @@ void buf_app_input_data_forwarder_1(
 				    ST_Queue<bool> &reset_buf_app_input_data_forwarder_1
 				    ) {
   APP_Data app_data;
-  bool valid_app_data = false;
   bool reset = false;
   unsigned reset_cnt = 0;
 
@@ -24,7 +23,6 @@ void buf_app_input_data_forwarder_1(
       if (reset_cnt == RESET_CNT) {
         reset_cnt = 0;
         reset = false;
-	valid_app_data = false;
       }
     }
     else {
