@@ -2,10 +2,19 @@
 ![Status](https://img.shields.io/badge/Version-Experimental-green.svg)
 ![License](https://img.shields.io/cran/l/devtools.svg)
 
-## Restrictions
-As stated in our paper, we have not integrated the support of simultaneous multiple applications into Insider compiler. Instead, we provide a template that supports three concurrent applications; user can replace the placeholder kernel with their application logic.
+- [Insider-multiapp](#insider-multiapp)
+  * [Restrictions](#restrictions)
+  * [Preliminaries](#preliminaries)
+  * [BUILD and Installation](#build-and-installation)
+  * [Usage](#usage)
+    + [Code Synthesis](#code-synthesis)
+    + [C Simulation](#c-simulation)
+    + [C-RTL Co-Simulation](#c-rtl-co-simulation)
 
-This version is simply a **proof of concept**. Since it is not integrated with Insider compiler, user needs to manually add the reset logic into their kernels which is somehow cumbersome. For the normal use case, please adopt the [single-application version](https://github.com/zainryan/Insider) which has the full end-to-end compilation support.
+## Restrictions
+As stated in our paper, we have not integrated the support of simultaneous multiple applications into Insider compiler. Instead, we provide a template that supports three concurrent applications; the user can replace the placeholder kernel with their application logic.
+
+This version is simply a **proof of concept**. Since it is not integrated with Insider compiler, the user needs to manually add the reset logic into their kernels which is somehow cumbersome. For the normal use case, please adopt the [single-application version](https://github.com/zainryan/Insider) which has the full end-to-end compilation support.
 
 ## Preliminaries
 The same as the [one](https://github.com/zainryan/Insider#preliminaries) in the single-application version.
@@ -24,7 +33,7 @@ template
 ```
 ### Code Synthesis
 
-`synthesis` folder contains the code for the end-to-end execution. It contains three very simple pass-through kernels (`kernels/app_pt_{0, 1, 2}`) that has different executing rate. User can replace that with their application logic, and `interconnects.cpp` should be modified accordingly.
+`synthesis` folder contains the code for the end-to-end execution. It contains three very simple pass-through kernels (`kernels/app_pt_{0, 1, 2}`) that have different executing rates. The user can replace that with their application logic, and `interconnects.cpp` should be modified accordingly.
 
 After that, execute `staccel_syn` to generate the `project` folder for the code synthesis. Steps go exactly the same as the [ones](https://github.com/zainryan/Insider#compiling-device-code) in the single-application version.
 
