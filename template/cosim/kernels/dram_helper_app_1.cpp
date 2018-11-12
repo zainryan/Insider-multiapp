@@ -64,6 +64,8 @@ void dram_helper_app_1(
       app_file_infos.read_nb(dummy0);
       Dram_Read_Resp dummy1;
       device_dram_read_resp.read_nb(dummy1);
+      bool dummy2;
+      buf_read_sig_app_input_data.read_nb(dummy2);
 
       reset_cnt ++;
       if (reset_cnt == RESET_CNT) {
