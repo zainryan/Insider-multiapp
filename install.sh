@@ -32,32 +32,12 @@ g++ STAccel/src/iopinChecker.cpp -std=c++11 -O3 \
 sudo mv staccel_pinckr /usr/bin
 sudo cp STAccel/shell/* /usr/bin
 
-sudo mkdir /usr/include/insider
-sudo cp Insider/inc/* /usr/include/insider
-sudo mkdir /usr/insider
-sudo cp -r Insider/cosim/ /usr/insider/
-sudo cp -r Insider/synthesis/ /usr/insider/
-g++ Insider/src/insider_reset_syn.cpp -std=c++11 -O3 \
-    -o insider_reset_syn
-sudo mv insider_reset_syn /usr/bin
-sudo cp Insider/shell/* /usr/bin
-cd Insider/lib; ./compile.sh; 
-sudo mv libinsider_runtime.so /usr/lib64;
-cd ../..;
-
 echo -e "\nadd_clang_subdirectory(s2s-kernel)" \
     >> $LLVM_SRC_PATH/tools/clang/tools/CMakeLists.txt
 echo "add_clang_subdirectory(s2s-interconnect)" \
     >> $LLVM_SRC_PATH/tools/clang/tools/CMakeLists.txt
 echo "add_clang_subdirectory(csim-interconnect)" \
     >> $LLVM_SRC_PATH/tools/clang/tools/CMakeLists.txt
-echo "add_clang_subdirectory(insider-app)" \
-    >> $LLVM_SRC_PATH/tools/clang/tools/CMakeLists.txt
-echo "add_clang_subdirectory(insider-interconnect)" \
-    >> $LLVM_SRC_PATH/tools/clang/tools/CMakeLists.txt
-echo "add_clang_subdirectory(insider-cosim-intc)" \
-    >> $LLVM_SRC_PATH/tools/clang/tools/CMakeLists.txt
-cp -r Insider/llvm/* $LLVM_SRC_PATH/tools/clang/tools
 cp -r STAccel/llvm/* $LLVM_SRC_PATH/tools/clang/tools
 cd $LLVM_BUILD_PATH
 cmake3 $LLVM_SRC_PATH
