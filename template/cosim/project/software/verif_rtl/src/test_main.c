@@ -66,6 +66,20 @@ void test_main(uint32_t *exit_code) {
   *exit_code = 0;
 }
 
+unsigned char* get_ptr_app_input_data(int idx) {
+  unsigned char* ptr_app_input_data;
+  if (idx == 0) {
+    ptr_app_input_data = app_input_data_0;
+  }
+  else if (idx == 1) {
+    ptr_app_input_data = app_input_data_1;
+  }
+  else if (idx == 2) {
+    ptr_app_input_data = app_input_data_2;
+  }
+  return ptr_app_input_data;
+}
+
 void user_simulation_function() {
   // PUT YOUR CODE HERE
   int success = 1;
@@ -84,29 +98,24 @@ void user_simulation_function() {
   int fd[APP_NUM], fin_file[APP_NUM] = {0, 0, 0};
   int total_read_bytes[APP_NUM] = {0, 0, 0};
   int fin_file_num = 0;
+  int size_app_input_data[APP_NUM] = {sizeof(app_input_data_0), 
+				      sizeof(app_input_data_1), 
+				      sizeof(app_input_data_2)};
 
+  unsigned char* buf[APP_NUM];
   for (i = 0; i < APP_NUM; i++) {
     fd[i] = iopen(i, "cosim_phy_file", 0);
+    buf[i] = (unsigned char *)malloc(READ_BUF_SIZE);
   }
-
-  unsigned char *buf = (unsigned char *)malloc(READ_BUF_SIZE);
 
   while (fin_file_num != APP_NUM) {
     for (i = 0; i < APP_NUM; i++) {
-      unsigned char* ptr_app_input_data;
-      if (i == 0) {
-	ptr_app_input_data = app_input_data_0;
-      }
-      else if (i == 1) {
-	ptr_app_input_data = app_input_data_1;
-      }
-      else if (i == 2) {
-	ptr_app_input_data = app_input_data_2;
-      }
+      unsigned char* ptr_app_input_data =
+	get_ptr_app_input_data(i);
       if (!fin_file[i]) {
 	int read_bytes = 0;
 	while (read_bytes != READ_BUF_SIZE) {
-	  int tmp = iread(fd[i], buf, READ_BUF_SIZE - read_bytes);
+	  int tmp = iread(fd[i], buf[i], READ_BUF_SIZE - read_bytes);
 	  if (!tmp) {
 	    printf("file %d fin.\n", i);
 	    fin_file[i] = 1;
@@ -117,32 +126,37 @@ void user_simulation_function() {
 	    read_bytes += tmp;
 	  }
 	}
-	printf("read_bytes = %d\n", read_bytes);
-	for (j = 0; j < read_bytes; j++) {
-	  int idx = total_read_bytes[i] + j;
-	  if (buf[j] != ptr_app_input_data[idx]) {
-	    printf("app id = %d, index = %d, real = %d, expected = %d\n",
-		   i, idx, (int)buf[j], (int)ptr_app_input_data[idx]);
-	    puts("Failed!");
-	    exit(-1);
-	  }
-	}
 	total_read_bytes[i] += read_bytes;
       }
     }
   }
+  puts("\n");
 
-  printf("total_read_bytes[0] = %d\n", total_read_bytes[0]);
-  printf("sizeof(app_input_data_0) = %d\n", sizeof(app_input_data_0));
-  success &= (total_read_bytes[0] == sizeof(app_input_data_0));
+  for (i = 0; i < APP_NUM; i++) {
+    int expected_total_read_bytes = size_app_input_data[i] % DATA_BUS_WIDTH;
+    if (expected_total_read_bytes == 0) {
+      expected_total_read_bytes = DATA_BUS_WIDTH;
+    }
+    printf("total_read_bytes[%c] = %d\n", i + '0', total_read_bytes[i]);
+    printf("expected_total_read_bytes[%c] = %d\n", i + '0', 
+	   expected_total_read_bytes);
+    success &= (total_read_bytes[i] == expected_total_read_bytes);
 
-  printf("total_read_bytes[1] = %d\n", total_read_bytes[1]);
-  printf("sizeof(app_input_data_1) = %d\n", sizeof(app_input_data_1));
-  success &= (total_read_bytes[1] == sizeof(app_input_data_1));
+    unsigned char* ptr_app_input_data =
+      get_ptr_app_input_data(i);
+    for (j = 0; j < expected_total_read_bytes; j++) {
+      int expected_data = 
+	ptr_app_input_data[size_app_input_data[i] - expected_total_read_bytes + j];
+      if (buf[i][j] != expected_data) {
+	printf("idx = %d, expected_data = %d, real_data = %d\n", 
+	       j, expected_data, (int)buf[i][j]);
+	success = 0;
+	break;
+      }
+    }
+    puts("\n");
+  }
 
-  printf("total_read_bytes[2] = %d\n", total_read_bytes[2]);
-  printf("sizeof(app_input_data_2) = %d\n", sizeof(app_input_data_2));
-  success &= (total_read_bytes[2] == sizeof(app_input_data_2));
 
   if (success) {
     puts("Test PASSED");

@@ -477,28 +477,29 @@ void sub_simulation_function(int app_id) {
 	read_bytes += tmp;
       }
     }
-    for (int i = 0; i < read_bytes; i++) {
-      if (buf[i] != ptr_app_input_data[total_read_bytes + i]) {
-	cout << "Failed." << endl;
-	cout << "app_id = " << app_id
-	     << ", index = " << total_read_bytes + i
-	     << ", real = " << (int)buf[i] 
-	     << ", expected = " << (int)ptr_app_input_data[total_read_bytes + i] << endl;
-	exit(-1);
-      }
-    }
     total_read_bytes += read_bytes;
   }
-  if (total_read_bytes != size_app_input_data) {
+
+  int expected_total_read_bytes = size_app_input_data % (DATA_BUS_WIDTH);
+  if (expected_total_read_bytes == 0) {
+    expected_total_read_bytes = DATA_BUS_WIDTH;
+  }
+  if (total_read_bytes != expected_total_read_bytes) {
     cout << "Failed." << endl;
     cout << "app_id = " << app_id
 	 << ", total_read_bytes = " << total_read_bytes
-	 << ", size_app_input_data = " << size_app_input_data << endl;
+	 << ", expected_total_read_bytes = " << expected_total_read_bytes << endl;
     exit(-1);
   }
-  cout << "app_id = " << app_id
-       << ", total_read_bytes = " << total_read_bytes
-       << ", size_app_input_data = " << size_app_input_data << endl;
+  for (int i = 0; i < total_read_bytes; i++) {
+    int expected_data = ptr_app_input_data[size_app_input_data - total_read_bytes + i];
+    if (buf[i] != expected_data) {
+      cout << "idx = " << i
+	   << "real_data = " << (int)buf[i]
+	   << "expected_data = " << expected_data << endl;
+      exit(-1);
+    }
+  }
 
   iclose(fd);
 }

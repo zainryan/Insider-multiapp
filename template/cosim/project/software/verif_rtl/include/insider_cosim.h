@@ -25,6 +25,7 @@
 #define ALLOCATED_BUF_NUM (8)
 #define APP_BUF_SIZE_LOG2 (21)
 #define KBUF_SIZE (1 << 22)
+#define DATA_BUS_WIDTH (0x40)
 #define BUF_METADATA_IDX (1 << 21)
 #define VIRT_FILE_FD_0 (0xFFF0)
 #define VIRT_FILE_FD_1 (0xFFF1)
