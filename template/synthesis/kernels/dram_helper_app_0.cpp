@@ -42,7 +42,7 @@ void dram_helper_app_0(
   unsigned int num_issued = 0;
   bool finish_issuing = false;
 
-  unsigned int buffered_resp_size = 0;
+  ap_uint<APP_DRAM_RESP_BUFFER_SIZE_LOG2> buffered_resp_size = 0;
 
   while (1) {
 #pragma HLS pipeline
