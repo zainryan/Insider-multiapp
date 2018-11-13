@@ -27,6 +27,7 @@ void pcie_write_multiplexer(
   // state = 5: outstanding req from device-side interface 1
   // state = 6: outstanding req from device-side interface 2
   unsigned char state = 0;
+  unsigned char last_state = 0;
   unsigned char inflight_device_req_apply_num = 0; 
 
   while (1) {
@@ -47,26 +48,64 @@ void pcie_write_multiplexer(
 	state = 1;
 	pcie_write_req_apply.write(req_apply);
       }
-      else if (device_pcie_write_req_apply_0.read_nb(req_apply)) {
-	state = 4;
-	pcie_write_req_apply.write(req_apply);
-	inflight_device_req_apply_num = req_apply.num;
-      }
-      else if (device_pcie_write_req_apply_1.read_nb(req_apply)) {
-	state = 5;
-	pcie_write_req_apply.write(req_apply);
-	inflight_device_req_apply_num = req_apply.num;
-      }
-      else if (device_pcie_write_req_apply_2.read_nb(req_apply)) {
-	state = 6;
-	pcie_write_req_apply.write(req_apply);
-	inflight_device_req_apply_num = req_apply.num;
+      else {
+	if (last_state == 5) {
+	  if (device_pcie_write_req_apply_2.read_nb(req_apply)) {
+	    state = 6;
+	    pcie_write_req_apply.write(req_apply);
+	    inflight_device_req_apply_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_0.read_nb(req_apply)) {
+	    state = 4;
+	    pcie_write_req_apply.write(req_apply);
+	    inflight_device_req_apply_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_1.read_nb(req_apply)) {
+	    state = 5;
+	    pcie_write_req_apply.write(req_apply);
+	    inflight_device_req_apply_num = req_apply.num;
+	  }
+	}
+	else if (last_state == 4) { 
+	  if (device_pcie_write_req_apply_1.read_nb(req_apply)) {
+	    state = 5;
+	    pcie_write_req_apply.write(req_apply);
+	    inflight_device_req_apply_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_2.read_nb(req_apply)) {
+	    state = 6;
+	    pcie_write_req_apply.write(req_apply);
+	    inflight_device_req_apply_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_0.read_nb(req_apply)) {
+	    state = 4;
+	    pcie_write_req_apply.write(req_apply);
+	    inflight_device_req_apply_num = req_apply.num;
+	  }
+	}
+        else {
+	  if (device_pcie_write_req_apply_0.read_nb(req_apply)) {
+	    state = 4;
+	    pcie_write_req_apply.write(req_apply);
+	    inflight_device_req_apply_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_1.read_nb(req_apply)) {
+	    state = 5;
+	    pcie_write_req_apply.write(req_apply);
+	    inflight_device_req_apply_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_2.read_nb(req_apply)) {
+	    state = 6;
+	    pcie_write_req_apply.write(req_apply);
+	    inflight_device_req_apply_num = req_apply.num;
+	  }
+	}
       }
     }
 
     if (state == 1) {
       if (host_data_pcie_write_req_data.read_nb(write_data)) {
-	pcie_write_req_data.write(write_data);	
+	pcie_write_req_data.write(write_data);
 	if (write_data.last) {
 	  state = 0;
 	}
@@ -92,6 +131,7 @@ void pcie_write_multiplexer(
       if (device_pcie_write_req_data_0.read_nb(write_data)) {
 	inflight_device_req_apply_num --;
 	if (!inflight_device_req_apply_num) {
+	  last_state = state;
 	  state = 0;
 	  write_data.last = true;
 	}
@@ -102,6 +142,7 @@ void pcie_write_multiplexer(
       if (device_pcie_write_req_data_1.read_nb(write_data)) {
 	inflight_device_req_apply_num --;
 	if (!inflight_device_req_apply_num) {
+	  last_state = state;
 	  state = 0;
 	  write_data.last = true;
 	}
@@ -112,6 +153,7 @@ void pcie_write_multiplexer(
       if (device_pcie_write_req_data_2.read_nb(write_data)) {
 	inflight_device_req_apply_num --;
 	if (!inflight_device_req_apply_num) {
+	  last_state = state;
 	  state = 0;
 	  write_data.last = true;
 	}

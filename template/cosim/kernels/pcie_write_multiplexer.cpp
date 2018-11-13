@@ -37,8 +37,11 @@ void pcie_write_multiplexer(
   // state = 7: outstanding req from cosim-dramB interface
   // state = 8: outstanding req from cosim-dramC interface
   // state = 9: outstanding req from cosim-dramD interface
+
   unsigned char state = 0;
+  unsigned char last_state = 0;
   int device_pcie_write_req_lefting_num;
+
   while (1) {
 #pragma HLS pipeline
     PCIe_Write_Req_Data write_data;
@@ -53,21 +56,6 @@ void pcie_write_multiplexer(
       else if (host_data_pcie_write_req_apply.read_nb(req_apply)) {
 	state = 1;
 	pcie_write_req_apply.write(req_apply);
-      }
-      else if (device_pcie_write_req_apply_0.read_nb(req_apply)) {
-	state = 3;
-	pcie_write_req_apply.write(req_apply);
-	device_pcie_write_req_lefting_num = req_apply.num;
-      }
-      else if (device_pcie_write_req_apply_1.read_nb(req_apply)) {
-	state = 4;
-	pcie_write_req_apply.write(req_apply);
-	device_pcie_write_req_lefting_num = req_apply.num;
-      }
-      else if (device_pcie_write_req_apply_2.read_nb(req_apply)) {
-	state = 5;
-	pcie_write_req_apply.write(req_apply);
-	device_pcie_write_req_lefting_num = req_apply.num;
       }
       else if (cosim_dramA_write_req_apply.read_nb(dram_req_apply)) {
 	state = 6;
@@ -93,6 +81,59 @@ void pcie_write_multiplexer(
 	req_apply.num = dram_req_apply.num;
 	pcie_write_req_apply.write(req_apply);
       }
+      else {
+	if (last_state == 3) {
+	  if (device_pcie_write_req_apply_1.read_nb(req_apply)) {
+	    state = 4;
+	    pcie_write_req_apply.write(req_apply);
+	    device_pcie_write_req_lefting_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_2.read_nb(req_apply)) {
+	    state = 5;
+	    pcie_write_req_apply.write(req_apply);
+	    device_pcie_write_req_lefting_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_0.read_nb(req_apply)) {
+	    state = 3;
+	    pcie_write_req_apply.write(req_apply);
+	    device_pcie_write_req_lefting_num = req_apply.num;
+	  }
+	}
+	else if (last_state == 4) {
+	  if (device_pcie_write_req_apply_2.read_nb(req_apply)) {
+	    state = 5;
+	    pcie_write_req_apply.write(req_apply);
+	    device_pcie_write_req_lefting_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_0.read_nb(req_apply)) {
+	    state = 3;
+	    pcie_write_req_apply.write(req_apply);
+	    device_pcie_write_req_lefting_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_1.read_nb(req_apply)) {
+	    state = 4;
+	    pcie_write_req_apply.write(req_apply);
+	    device_pcie_write_req_lefting_num = req_apply.num;
+	  }
+	}
+	else {
+	  if (device_pcie_write_req_apply_0.read_nb(req_apply)) {
+	    state = 3;
+	    pcie_write_req_apply.write(req_apply);
+	    device_pcie_write_req_lefting_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_1.read_nb(req_apply)) {
+	    state = 4;
+	    pcie_write_req_apply.write(req_apply);
+	    device_pcie_write_req_lefting_num = req_apply.num;
+	  }
+	  else if (device_pcie_write_req_apply_2.read_nb(req_apply)) {
+	    state = 5;
+	    pcie_write_req_apply.write(req_apply);
+	    device_pcie_write_req_lefting_num = req_apply.num;
+	  }
+	}
+      }
     }
 
     if (state == 1) {
@@ -117,7 +158,9 @@ void pcie_write_multiplexer(
 	if (!device_pcie_write_req_lefting_num) {
 	  write_data.last = true;
 	}
-	pcie_write_req_data.write(write_data);if (write_data.last) {
+	pcie_write_req_data.write(write_data);
+	if (write_data.last) {
+	  last_state = state;
 	  state = 0;
 	}
       }
@@ -128,7 +171,9 @@ void pcie_write_multiplexer(
 	if (!device_pcie_write_req_lefting_num) {
 	  write_data.last = true;
 	}
-	pcie_write_req_data.write(write_data);if (write_data.last) {
+	pcie_write_req_data.write(write_data);
+	if (write_data.last) {
+	  last_state = state;
 	  state = 0;
 	}
       }
@@ -139,7 +184,9 @@ void pcie_write_multiplexer(
 	if (!device_pcie_write_req_lefting_num) {
 	  write_data.last = true;
 	}
-	pcie_write_req_data.write(write_data);if (write_data.last) {
+	pcie_write_req_data.write(write_data);
+	if (write_data.last) {
+	  last_state = state;
 	  state = 0;
 	}
       }
