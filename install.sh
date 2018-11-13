@@ -32,6 +32,12 @@ g++ STAccel/src/iopinChecker.cpp -std=c++11 -O3 \
 sudo mv staccel_pinckr /usr/bin
 sudo cp STAccel/shell/* /usr/bin
 
+sudo mkdir /usr/include/insider
+sudo cp Insider/inc/* /usr/include/insider
+cd Insider/lib; ./compile.sh; 
+sudo mv libinsider_runtime.so /usr/lib64;
+cd ../..;
+
 echo -e "\nadd_clang_subdirectory(s2s-kernel)" \
     >> $LLVM_SRC_PATH/tools/clang/tools/CMakeLists.txt
 echo "add_clang_subdirectory(s2s-interconnect)" \
