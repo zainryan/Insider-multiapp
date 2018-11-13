@@ -1,13 +1,23 @@
+# Amazon FPGA Hardware Development Kit
+#
+# Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Licensed under the Amazon Software License (the "License"). You may not use
+# this file except in compliance with the License. A copy of the License is
+# located at
+#
+#    http://aws.amazon.com/asl/
+#
+# or in the "license" file accompanying this file. This file is distributed on
+# an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or
+# implied. See the License for the specific language governing permissions and
+# limitations under the License.
+
 #Param needed to avoid clock name collisions
 set_param sta.enableAutoGenClkNamePersistence 0
 set CL_MODULE $CL_MODULE
 
 create_project -in_memory -part [DEVICE_TYPE] -force
-
-set DESIGN_DIR $CL_DIR/design
-foreach file [glob -nocomplain -dir $DESIGN_DIR *.tcl] {
-    source $file
-}
 
 ########################################
 ## Generate clocks based on Recipe 
@@ -21,56 +31,62 @@ source $HDK_SHELL_DIR/build/scripts/aws_gen_clk_constraints.tcl
 ## Read design files
 #############################
 
+#Convenience to set the root of the RTL directory
+
 puts "AWS FPGA: ([clock format [clock seconds] -format %T]) Reading developer's Custom Logic files post encryption.";
 
 #---- User would replace this section -----
+
+# Reading the .sv and .v files, as proper designs would not require
+# reading .v, .vh, nor .inc files
+
+read_verilog [ glob $CL_DIR/design/*v ]
 
 #---- End of section replaced by User ----
 
 puts "AWS FPGA: Reading AWS Shell design";
 
-#Read AWS Design files                                                                 
-read_verilog [ list \
+#Read AWS Design files
+read_verilog -sv [ list \
   $HDK_SHELL_DESIGN_DIR/lib/lib_pipe.sv \
   $HDK_SHELL_DESIGN_DIR/lib/bram_2rw.sv \
   $HDK_SHELL_DESIGN_DIR/lib/flop_fifo.sv \
   $HDK_SHELL_DESIGN_DIR/sh_ddr/synth/sync.v \
   $HDK_SHELL_DESIGN_DIR/sh_ddr/synth/flop_ccf.sv \
   $HDK_SHELL_DESIGN_DIR/sh_ddr/synth/ccf_ctl.v \
-  $HDK_SHELL_DESIGN_DIR/sh_ddr/synth/mgt_acc_axl.sv \
-  $HDK_SHELL_DESIGN_DIR/sh_ddr/synth/mgt_gen_axl.sv \
+  $HDK_SHELL_DESIGN_DIR/sh_ddr/synth/mgt_acc_axl.sv  \
+  $HDK_SHELL_DESIGN_DIR/sh_ddr/synth/mgt_gen_axl.sv  \
   $HDK_SHELL_DESIGN_DIR/sh_ddr/synth/sh_ddr.sv \
-  $HDK_SHELL_DESIGN_DIR/interfaces/cl_ports.vh
+  $HDK_SHELL_DESIGN_DIR/interfaces/cl_ports.vh 
 ]
-
-read_verilog [ glob $CL_DIR/design/*v ]
 
 puts "AWS FPGA: Reading IP blocks";
-
-#Read IP for axi register slices
-read_ip [ list \
-  $HDK_SHELL_DESIGN_DIR/ip/src_register_slice/src_register_slice.xci \
-  $HDK_SHELL_DESIGN_DIR/ip/dest_register_slice/dest_register_slice.xci \
-  $HDK_SHELL_DESIGN_DIR/ip/axi_register_slice/axi_register_slice.xci \
-  $HDK_SHELL_DESIGN_DIR/ip/axi_register_slice_light/axi_register_slice_light.xci \
-  $HDK_SHELL_DESIGN_DIR/ip/axi_clock_converter_0/axi_clock_converter_0.xci
-]
-
-#Read IP for virtual jtag / ILA/VIO
-read_ip [ list \
-  $HDK_SHELL_DESIGN_DIR/ip/cl_debug_bridge/cl_debug_bridge.xci \
-  $HDK_SHELL_DESIGN_DIR/ip/ila_vio_counter/ila_vio_counter.xci \
-  $HDK_SHELL_DESIGN_DIR/ip/vio_0/vio_0.xci
-]
 
 #Read DDR IP
 read_ip [ list \
   $HDK_SHELL_DESIGN_DIR/ip/ddr4_core/ddr4_core.xci
 ]
 
-# Additional IP's that might be needed if using the DDR
+#Read IP for axi register slices
+read_ip [ list \
+  $HDK_SHELL_DESIGN_DIR/ip/src_register_slice/src_register_slice.xci \
+  $HDK_SHELL_DESIGN_DIR/ip/dest_register_slice/dest_register_slice.xci \
+  $HDK_SHELL_DESIGN_DIR/ip/axi_clock_converter_0/axi_clock_converter_0.xci \
+  $HDK_SHELL_DESIGN_DIR/ip/axi_register_slice/axi_register_slice.xci \
+  $HDK_SHELL_DESIGN_DIR/ip/axi_register_slice_light/axi_register_slice_light.xci
+]
+
+#Read IP for virtual jtag / ILA/VIO
+read_ip [ list \
+  $HDK_SHELL_DESIGN_DIR/ip/cl_debug_bridge/cl_debug_bridge.xci \
+  $HDK_SHELL_DESIGN_DIR/ip/ila_1/ila_1.xci \
+  $HDK_SHELL_DESIGN_DIR/ip/ila_vio_counter/ila_vio_counter.xci \
+  $HDK_SHELL_DESIGN_DIR/ip/vio_0/vio_0.xci
+]
+
+#Additional IP's that might be needed if using the DDR
 read_bd [ list \
-   $HDK_SHELL_DESIGN_DIR/ip/cl_axi_interconnect/cl_axi_interconnect.bd
+ $HDK_SHELL_DESIGN_DIR/ip/cl_axi_interconnect/cl_axi_interconnect.bd
 ]
 
 puts "AWS FPGA: Reading AWS constraints";
