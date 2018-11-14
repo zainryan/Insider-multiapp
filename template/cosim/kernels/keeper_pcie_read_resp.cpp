@@ -3,10 +3,8 @@
 
 #include <insider_kernel.h>
 
-void keeper_pcie_read_resp(
-			   ST_Queue<PCIe_Read_Resp> &pcie_read_resp,
-			   ST_Queue<PCIe_Read_Resp> &buffered_pcie_read_resp
-			   ) {
+void keeper_pcie_read_resp(ST_Queue<PCIe_Read_Resp> &pcie_read_resp,
+                           ST_Queue<PCIe_Read_Resp> &buffered_pcie_read_resp) {
   while (1) {
 #pragma HLS pipeline
     PCIe_Read_Resp read_resp;

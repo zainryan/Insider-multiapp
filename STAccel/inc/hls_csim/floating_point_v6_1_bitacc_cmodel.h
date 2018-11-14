@@ -73,7 +73,8 @@
 #define __XIP_FPO_DLLEXPORT
 #endif
 
-// Only define __XIP_FPO_BUILD_DLL when building the C model DLL; do not define it when using the C model
+// Only define __XIP_FPO_BUILD_DLL when building the C model DLL; do not define
+// it when using the C model
 #ifdef __XIP_FPO_BUILD_DLL
 #define __XIP_FPO_DLL __XIP_FPO_DLLEXPORT
 #else
@@ -82,52 +83,56 @@
 
 /* Extra define for functions with variable numbers of arguments */
 #define __XIP_FPO_SENTINEL_ATTR
-#if defined (__GNUC__)
-# if __GNUC__ >= 4
-#  undef __XIP_FPO_SENTINEL_ATTR
-#  define __XIP_FPO_SENTINEL_ATTR __attribute__ ((sentinel))
-# endif
+#if defined(__GNUC__)
+#if __GNUC__ >= 4
+#undef __XIP_FPO_SENTINEL_ATTR
+#define __XIP_FPO_SENTINEL_ATTR __attribute__((sentinel))
+#endif
 #endif
 
 /* Define Floating Point Operator core version number */
 #define XIP_FPO_VERSION_MAJOR 6
 #define XIP_FPO_VERSION_MINOR 1
-#define XIP_FPO_REVISION      0
-/* Version string does not include revision if revision is 0 (revision >0 reserved for future use) */
+#define XIP_FPO_REVISION 0
+/* Version string does not include revision if revision is 0 (revision >0
+ * reserved for future use) */
 #define XIP_FPO_VERSION_STRING "6.1"
 
-/* Use C99 exact width integer types for 64-bit integers and *_uj and *_sj functions */
-// For Windows platforms, stdint.h and inttypes.h are not present in Visual Studio 2005/2008
-// Therefore we define the required types ourselves
-// For Linux platforms, we need to continue using stdint.h (and not re-define intmax_t, uintmax_t)
-// because SysGen already uses this header.
+/* Use C99 exact width integer types for 64-bit integers and *_uj and *_sj
+ * functions */
+// For Windows platforms, stdint.h and inttypes.h are not present in Visual
+// Studio 2005/2008 Therefore we define the required types ourselves For Linux
+// platforms, we need to continue using stdint.h (and not re-define intmax_t,
+// uintmax_t) because SysGen already uses this header.
 #ifdef NT
-typedef   signed char      xint8;
-typedef   signed short     xint16;
-typedef   signed int       xint32;
-typedef   signed long long xint64;
-typedef unsigned char      xuint8;
-typedef unsigned short     xuint16;
-typedef unsigned int       xuint32;
+typedef signed char xint8;
+typedef signed short xint16;
+typedef signed int xint32;
+typedef signed long long xint64;
+typedef unsigned char xuint8;
+typedef unsigned short xuint16;
+typedef unsigned int xuint32;
 typedef unsigned long long xuint64;
-typedef xint64  intmax_t;
+typedef xint64 intmax_t;
 typedef xuint64 uintmax_t;
 #else
 #include <stdint.h>
-typedef int8_t   xint8;
-typedef int16_t  xint16;
-typedef int32_t  xint32;
-typedef int64_t  xint64;
-typedef uint8_t  xuint8;
+typedef int8_t xint8;
+typedef int16_t xint16;
+typedef int32_t xint32;
+typedef int64_t xint64;
+typedef uint8_t xuint8;
 typedef uint16_t xuint16;
 typedef uint32_t xuint32;
 typedef uint64_t xuint64;
 #endif
 
-// REVISIT: included before mpfr.h to permit definition of prototypes for mpfr_printf
+// REVISIT: included before mpfr.h to permit definition of prototypes for
+// mpfr_printf
 #include <stdio.h>
 
-// Force MPFR to use intmax_t and uintmax_t types (the compiled libraries have the functions that use these)
+// Force MPFR to use intmax_t and uintmax_t types (the compiled libraries have
+// the functions that use these)
 #define MPFR_USE_INTMAX_T
 
 // Tell MPIR on Windows platforms that it is compiled into a DLL
@@ -137,8 +142,9 @@ typedef uint64_t xuint64;
 
 /* Check if GMP is included, and try to include it (Works with local GMP)
    Note that where MPIR is provided as a compatible alternative to GMP,
-   it also provides a gmp.h header file to allow MPIR and GMP to be easily interchanged.
-   Select the correct gmp.h by setting the -I option (includes path) for your compiler. */
+   it also provides a gmp.h header file to allow MPIR and GMP to be easily
+   interchanged. Select the correct gmp.h by setting the -I option (includes
+   path) for your compiler. */
 #ifndef __GMP_H__
 #include <gmp.h>
 #endif
@@ -159,29 +165,30 @@ typedef long xip_fpo_exp_t;
 
 /* The main floating point number structure */
 typedef struct {
-  xip_fpo_prec_t  _xip_fpo_exp_prec;
-  xip_fpo_prec_t  _xip_fpo_mant_prec;
-  xip_fpo_sign_t  _xip_fpo_sign;
-  xip_fpo_exp_t   _xip_fpo_exp;
-  mp_limb_t      *_xip_fpo_d;
+  xip_fpo_prec_t _xip_fpo_exp_prec;
+  xip_fpo_prec_t _xip_fpo_mant_prec;
+  xip_fpo_sign_t _xip_fpo_sign;
+  xip_fpo_exp_t _xip_fpo_exp;
+  mp_limb_t *_xip_fpo_d;
 } __xip_fpo_struct;
 
 /* The main fixed point number structure */
 typedef struct {
-  xip_fpo_prec_t  _xip_fpo_i_prec;
-  xip_fpo_prec_t  _xip_fpo_frac_prec;
-  xint64         _xip_fpo_i;
-  xint64         _xip_fpo_frac;
+  xip_fpo_prec_t _xip_fpo_i_prec;
+  xip_fpo_prec_t _xip_fpo_frac_prec;
+  xint64 _xip_fpo_i;
+  xint64 _xip_fpo_frac;
 } __xip_fpo_fix_struct;
 
 /* User-visible types for floating point and fixed point numbers */
-typedef       __xip_fpo_struct      xip_fpo_t[1];
-typedef       __xip_fpo_fix_struct  xip_fpo_fix_t[1];
+typedef __xip_fpo_struct xip_fpo_t[1];
+typedef __xip_fpo_fix_struct xip_fpo_fix_t[1];
 
-/* Pointers to floating point and fixed point numbers, for function prototypes */
-typedef       __xip_fpo_struct     *xip_fpo_ptr;
-typedef const __xip_fpo_struct     *xip_fpo_srcptr;
-typedef       __xip_fpo_fix_struct *xip_fpo_fix_ptr;
+/* Pointers to floating point and fixed point numbers, for function prototypes
+ */
+typedef __xip_fpo_struct *xip_fpo_ptr;
+typedef const __xip_fpo_struct *xip_fpo_srcptr;
+typedef __xip_fpo_fix_struct *xip_fpo_fix_ptr;
 typedef const __xip_fpo_fix_struct *xip_fpo_fix_srcptr;
 
 /* Definition of exception flags - return type of most functions
@@ -193,156 +200,180 @@ typedef const __xip_fpo_fix_struct *xip_fpo_fix_srcptr;
    bit 4 : operation not supported */
 typedef int xip_fpo_exc_t;
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
 /* Information functions */
-__XIP_FPO_DLL const char * xip_fpo_get_version (void);
+__XIP_FPO_DLL const char *xip_fpo_get_version(void);
 
 /* Initialization functions */
-__XIP_FPO_DLL void xip_fpo_init2        (xip_fpo_ptr, xip_fpo_prec_t, xip_fpo_prec_t);
-__XIP_FPO_DLL void xip_fpo_fix_init2    (xip_fpo_fix_ptr, xip_fpo_prec_t, xip_fpo_prec_t);
-__XIP_FPO_DLL void xip_fpo_inits2       (xip_fpo_prec_t, xip_fpo_prec_t, xip_fpo_ptr, ...) __XIP_FPO_SENTINEL_ATTR;
-__XIP_FPO_DLL void xip_fpo_fix_inits2   (xip_fpo_prec_t, xip_fpo_prec_t, xip_fpo_fix_ptr, ...) __XIP_FPO_SENTINEL_ATTR;
-__XIP_FPO_DLL void xip_fpo_clear        (xip_fpo_ptr);
-__XIP_FPO_DLL void xip_fpo_fix_clear    (xip_fpo_fix_ptr);
-__XIP_FPO_DLL void xip_fpo_clears       (xip_fpo_ptr, ...) __XIP_FPO_SENTINEL_ATTR;
-__XIP_FPO_DLL void xip_fpo_fix_clears   (xip_fpo_fix_ptr, ...) __XIP_FPO_SENTINEL_ATTR;
-__XIP_FPO_DLL void xip_fpo_set_prec     (xip_fpo_ptr, xip_fpo_prec_t, xip_fpo_prec_t);
-__XIP_FPO_DLL void xip_fpo_fix_set_prec (xip_fpo_fix_ptr, xip_fpo_prec_t, xip_fpo_prec_t);
-__XIP_FPO_DLL xip_fpo_prec_t xip_fpo_get_prec_mant     (xip_fpo_ptr);
-__XIP_FPO_DLL xip_fpo_prec_t xip_fpo_get_prec_exp      (xip_fpo_ptr);
-__XIP_FPO_DLL xip_fpo_prec_t xip_fpo_fix_get_prec_frac (xip_fpo_fix_ptr);
-__XIP_FPO_DLL xip_fpo_prec_t xip_fpo_fix_get_prec_int  (xip_fpo_fix_ptr);
+__XIP_FPO_DLL void xip_fpo_init2(xip_fpo_ptr, xip_fpo_prec_t, xip_fpo_prec_t);
+__XIP_FPO_DLL void xip_fpo_fix_init2(xip_fpo_fix_ptr, xip_fpo_prec_t,
+                                     xip_fpo_prec_t);
+__XIP_FPO_DLL void xip_fpo_inits2(xip_fpo_prec_t, xip_fpo_prec_t, xip_fpo_ptr,
+                                  ...) __XIP_FPO_SENTINEL_ATTR;
+__XIP_FPO_DLL void xip_fpo_fix_inits2(xip_fpo_prec_t, xip_fpo_prec_t,
+                                      xip_fpo_fix_ptr,
+                                      ...) __XIP_FPO_SENTINEL_ATTR;
+__XIP_FPO_DLL void xip_fpo_clear(xip_fpo_ptr);
+__XIP_FPO_DLL void xip_fpo_fix_clear(xip_fpo_fix_ptr);
+__XIP_FPO_DLL void xip_fpo_clears(xip_fpo_ptr, ...) __XIP_FPO_SENTINEL_ATTR;
+__XIP_FPO_DLL void xip_fpo_fix_clears(xip_fpo_fix_ptr,
+                                      ...) __XIP_FPO_SENTINEL_ATTR;
+__XIP_FPO_DLL void xip_fpo_set_prec(xip_fpo_ptr, xip_fpo_prec_t,
+                                    xip_fpo_prec_t);
+__XIP_FPO_DLL void xip_fpo_fix_set_prec(xip_fpo_fix_ptr, xip_fpo_prec_t,
+                                        xip_fpo_prec_t);
+__XIP_FPO_DLL xip_fpo_prec_t xip_fpo_get_prec_mant(xip_fpo_ptr);
+__XIP_FPO_DLL xip_fpo_prec_t xip_fpo_get_prec_exp(xip_fpo_ptr);
+__XIP_FPO_DLL xip_fpo_prec_t xip_fpo_fix_get_prec_frac(xip_fpo_fix_ptr);
+__XIP_FPO_DLL xip_fpo_prec_t xip_fpo_fix_get_prec_int(xip_fpo_fix_ptr);
 
 /* Assignment functions */
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set         (xip_fpo_ptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set     (xip_fpo_fix_ptr, xip_fpo_fix_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_ui      (xip_fpo_ptr, unsigned long);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_ui  (xip_fpo_fix_ptr, unsigned long);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_si      (xip_fpo_ptr, long);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_si  (xip_fpo_fix_ptr, long);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_uj      (xip_fpo_ptr, uintmax_t);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_uj  (xip_fpo_fix_ptr, uintmax_t);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_sj      (xip_fpo_ptr, intmax_t);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_sj  (xip_fpo_fix_ptr, intmax_t);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_flt     (xip_fpo_ptr, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_flt (xip_fpo_fix_ptr, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_d       (xip_fpo_ptr, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_d   (xip_fpo_fix_ptr, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_z       (xip_fpo_ptr, mpz_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_z   (xip_fpo_fix_ptr, mpz_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_q       (xip_fpo_ptr, mpq_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_q   (xip_fpo_fix_ptr, mpq_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_f       (xip_fpo_ptr, mpf_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_f   (xip_fpo_fix_ptr, mpf_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_fr      (xip_fpo_ptr, mpfr_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_fr  (xip_fpo_fix_ptr, mpfr_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_ui_2exp (xip_fpo_ptr, unsigned long, xip_fpo_exp_t);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_si_2exp (xip_fpo_ptr, long, xip_fpo_exp_t);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_uj_2exp (xip_fpo_ptr, uintmax_t, intmax_t);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_sj_2exp (xip_fpo_ptr, intmax_t, intmax_t);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_str     (xip_fpo_ptr, const char *, int);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_str (xip_fpo_fix_ptr, const char *, int);
-__XIP_FPO_DLL void          xip_fpo_set_nan     (xip_fpo_ptr);
-__XIP_FPO_DLL void          xip_fpo_set_inf     (xip_fpo_ptr, int);
-__XIP_FPO_DLL void          xip_fpo_set_zero    (xip_fpo_ptr, int);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set(xip_fpo_ptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set(xip_fpo_fix_ptr,
+                                            xip_fpo_fix_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_ui(xip_fpo_ptr, unsigned long);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_ui(xip_fpo_fix_ptr, unsigned long);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_si(xip_fpo_ptr, long);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_si(xip_fpo_fix_ptr, long);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_uj(xip_fpo_ptr, uintmax_t);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_uj(xip_fpo_fix_ptr, uintmax_t);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_sj(xip_fpo_ptr, intmax_t);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_sj(xip_fpo_fix_ptr, intmax_t);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_flt(xip_fpo_ptr, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_flt(xip_fpo_fix_ptr, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_d(xip_fpo_ptr, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_d(xip_fpo_fix_ptr, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_z(xip_fpo_ptr, mpz_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_z(xip_fpo_fix_ptr, mpz_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_q(xip_fpo_ptr, mpq_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_q(xip_fpo_fix_ptr, mpq_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_f(xip_fpo_ptr, mpf_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_f(xip_fpo_fix_ptr, mpf_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_fr(xip_fpo_ptr, mpfr_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_fr(xip_fpo_fix_ptr, mpfr_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_ui_2exp(xip_fpo_ptr, unsigned long,
+                                                xip_fpo_exp_t);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_si_2exp(xip_fpo_ptr, long,
+                                                xip_fpo_exp_t);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_uj_2exp(xip_fpo_ptr, uintmax_t,
+                                                intmax_t);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_sj_2exp(xip_fpo_ptr, intmax_t,
+                                                intmax_t);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_set_str(xip_fpo_ptr, const char *, int);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_set_str(xip_fpo_fix_ptr, const char *,
+                                                int);
+__XIP_FPO_DLL void xip_fpo_set_nan(xip_fpo_ptr);
+__XIP_FPO_DLL void xip_fpo_set_inf(xip_fpo_ptr, int);
+__XIP_FPO_DLL void xip_fpo_set_zero(xip_fpo_ptr, int);
 
 /* Conversion functions */
-__XIP_FPO_DLL unsigned long xip_fpo_get_ui         (xip_fpo_srcptr);
-__XIP_FPO_DLL unsigned long xip_fpo_fix_get_ui     (xip_fpo_fix_srcptr);
-__XIP_FPO_DLL long          xip_fpo_get_si         (xip_fpo_srcptr);
-__XIP_FPO_DLL long          xip_fpo_fix_get_si     (xip_fpo_fix_srcptr);
-__XIP_FPO_DLL uintmax_t     xip_fpo_get_uj         (xip_fpo_srcptr);
-__XIP_FPO_DLL uintmax_t     xip_fpo_fix_get_uj     (xip_fpo_fix_srcptr);
-__XIP_FPO_DLL intmax_t      xip_fpo_get_sj         (xip_fpo_srcptr);
-__XIP_FPO_DLL intmax_t      xip_fpo_fix_get_sj     (xip_fpo_fix_srcptr);
-__XIP_FPO_DLL float         xip_fpo_get_flt        (xip_fpo_srcptr);
-__XIP_FPO_DLL float         xip_fpo_fix_get_flt    (xip_fpo_fix_srcptr);
-__XIP_FPO_DLL double        xip_fpo_get_d          (xip_fpo_srcptr);
-__XIP_FPO_DLL double        xip_fpo_fix_get_d      (xip_fpo_fix_srcptr);
-__XIP_FPO_DLL double        xip_fpo_get_d_2exp     (long *, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_get_z          (mpz_ptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_get_z      (mpz_ptr, xip_fpo_fix_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_get_f          (mpf_ptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_get_f      (mpf_ptr, xip_fpo_fix_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_get_fr         (mpfr_ptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_get_fr     (mpfr_ptr, xip_fpo_fix_srcptr);
-__XIP_FPO_DLL char *        xip_fpo_get_str        (char *, xip_fpo_exp_t *, int, int, xip_fpo_srcptr);
-__XIP_FPO_DLL char *        xip_fpo_fix_get_str    (char *, int, xip_fpo_fix_srcptr);
-__XIP_FPO_DLL void          xip_fpo_free_str       (char *);
-__XIP_FPO_DLL void          xip_fpo_fix_free_str   (char *);
-__XIP_FPO_DLL int           xip_fpo_sizeinbase     (xip_fpo_srcptr, int);
-__XIP_FPO_DLL int           xip_fpo_fix_sizeinbase (xip_fpo_fix_srcptr, int);
+__XIP_FPO_DLL unsigned long xip_fpo_get_ui(xip_fpo_srcptr);
+__XIP_FPO_DLL unsigned long xip_fpo_fix_get_ui(xip_fpo_fix_srcptr);
+__XIP_FPO_DLL long xip_fpo_get_si(xip_fpo_srcptr);
+__XIP_FPO_DLL long xip_fpo_fix_get_si(xip_fpo_fix_srcptr);
+__XIP_FPO_DLL uintmax_t xip_fpo_get_uj(xip_fpo_srcptr);
+__XIP_FPO_DLL uintmax_t xip_fpo_fix_get_uj(xip_fpo_fix_srcptr);
+__XIP_FPO_DLL intmax_t xip_fpo_get_sj(xip_fpo_srcptr);
+__XIP_FPO_DLL intmax_t xip_fpo_fix_get_sj(xip_fpo_fix_srcptr);
+__XIP_FPO_DLL float xip_fpo_get_flt(xip_fpo_srcptr);
+__XIP_FPO_DLL float xip_fpo_fix_get_flt(xip_fpo_fix_srcptr);
+__XIP_FPO_DLL double xip_fpo_get_d(xip_fpo_srcptr);
+__XIP_FPO_DLL double xip_fpo_fix_get_d(xip_fpo_fix_srcptr);
+__XIP_FPO_DLL double xip_fpo_get_d_2exp(long *, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_get_z(mpz_ptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_get_z(mpz_ptr, xip_fpo_fix_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_get_f(mpf_ptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_get_f(mpf_ptr, xip_fpo_fix_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_get_fr(mpfr_ptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fix_get_fr(mpfr_ptr, xip_fpo_fix_srcptr);
+__XIP_FPO_DLL char *xip_fpo_get_str(char *, xip_fpo_exp_t *, int, int,
+                                    xip_fpo_srcptr);
+__XIP_FPO_DLL char *xip_fpo_fix_get_str(char *, int, xip_fpo_fix_srcptr);
+__XIP_FPO_DLL void xip_fpo_free_str(char *);
+__XIP_FPO_DLL void xip_fpo_fix_free_str(char *);
+__XIP_FPO_DLL int xip_fpo_sizeinbase(xip_fpo_srcptr, int);
+__XIP_FPO_DLL int xip_fpo_fix_sizeinbase(xip_fpo_fix_srcptr, int);
 
 /* Operation functions */
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_add              (xip_fpo_ptr, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_add_flt          (float *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_add_d            (double *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sub              (xip_fpo_ptr, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sub_flt          (float *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sub_d            (double *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_mul              (xip_fpo_ptr, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_mul_flt          (float *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_mul_d            (double *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_div              (xip_fpo_ptr, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_div_flt          (float *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_div_d            (double *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_rec              (xip_fpo_ptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_rec_flt          (float *, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_rec_d            (double *, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_abs              (xip_fpo_ptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_abs_flt          (float *, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_abs_d            (double *, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_log              (xip_fpo_ptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_log_flt          (float *, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_log_d            (double *, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sqrt             (xip_fpo_ptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sqrt_flt         (float *, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sqrt_d           (double *, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_recsqrt          (xip_fpo_ptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_recsqrt_flt      (float *, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_recsqrt_d        (double *, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_unordered        (int *, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_unordered_flt    (int *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_unordered_d      (int *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_equal            (int *, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_equal_flt        (int *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_equal_d          (int *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_less             (int *, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_less_flt         (int *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_less_d           (int *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_lessequal        (int *, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_lessequal_flt    (int *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_lessequal_d      (int *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greater          (int *, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greater_flt      (int *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greater_d        (int *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greaterequal     (int *, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greaterequal_flt (int *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greaterequal_d   (int *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_notequal         (int *, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_notequal_flt     (int *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_notequal_d       (int *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_condcode         (int *, xip_fpo_srcptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_condcode_flt     (int *, float, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_condcode_d       (int *, double, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttofix         (xip_fpo_fix_ptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttofix_int_flt (int *, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttofix_int_d   (int *, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fixtoflt         (xip_fpo_ptr, xip_fpo_fix_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fixtoflt_flt_int (float *, int);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fixtoflt_d_int   (double *, int);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttoflt         (xip_fpo_ptr, xip_fpo_srcptr);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttoflt_flt_flt (float *, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttoflt_flt_d   (float *, double);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttoflt_d_flt   (double *, float);
-__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttoflt_d_d     (double *, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_add(xip_fpo_ptr, xip_fpo_srcptr,
+                                        xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_add_flt(float *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_add_d(double *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sub(xip_fpo_ptr, xip_fpo_srcptr,
+                                        xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sub_flt(float *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sub_d(double *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_mul(xip_fpo_ptr, xip_fpo_srcptr,
+                                        xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_mul_flt(float *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_mul_d(double *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_div(xip_fpo_ptr, xip_fpo_srcptr,
+                                        xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_div_flt(float *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_div_d(double *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_rec(xip_fpo_ptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_rec_flt(float *, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_rec_d(double *, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_abs(xip_fpo_ptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_abs_flt(float *, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_abs_d(double *, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_log(xip_fpo_ptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_log_flt(float *, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_log_d(double *, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sqrt(xip_fpo_ptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sqrt_flt(float *, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_sqrt_d(double *, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_recsqrt(xip_fpo_ptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_recsqrt_flt(float *, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_recsqrt_d(double *, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_unordered(int *, xip_fpo_srcptr,
+                                              xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_unordered_flt(int *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_unordered_d(int *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_equal(int *, xip_fpo_srcptr,
+                                          xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_equal_flt(int *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_equal_d(int *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_less(int *, xip_fpo_srcptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_less_flt(int *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_less_d(int *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_lessequal(int *, xip_fpo_srcptr,
+                                              xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_lessequal_flt(int *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_lessequal_d(int *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greater(int *, xip_fpo_srcptr,
+                                            xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greater_flt(int *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greater_d(int *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greaterequal(int *, xip_fpo_srcptr,
+                                                 xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greaterequal_flt(int *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_greaterequal_d(int *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_notequal(int *, xip_fpo_srcptr,
+                                             xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_notequal_flt(int *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_notequal_d(int *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_condcode(int *, xip_fpo_srcptr,
+                                             xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_condcode_flt(int *, float, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_condcode_d(int *, double, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttofix(xip_fpo_fix_ptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttofix_int_flt(int *, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttofix_int_d(int *, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fixtoflt(xip_fpo_ptr, xip_fpo_fix_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fixtoflt_flt_int(float *, int);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_fixtoflt_d_int(double *, int);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttoflt(xip_fpo_ptr, xip_fpo_srcptr);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttoflt_flt_flt(float *, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttoflt_flt_d(float *, double);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttoflt_d_flt(double *, float);
+__XIP_FPO_DLL xip_fpo_exc_t xip_fpo_flttoflt_d_d(double *, double);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 } /* End of "C" linkage block */
 #endif
 
 #endif // __xip_fpo_bitacc_cmodel_h
-

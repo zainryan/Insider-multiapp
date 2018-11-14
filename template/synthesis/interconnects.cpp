@@ -6,15 +6,15 @@
 
 #include "insider_itc.h"
 
-#include "command_handler.cpp"
-#include "dram_helper_app_0.cpp"
-#include "dram_helper_app_1.cpp"
-#include "dram_helper_app_2.cpp"
 #include "buf_app_input_data_forwarder_0.cpp"
 #include "buf_app_input_data_forwarder_1.cpp"
 #include "buf_app_input_data_forwarder_2.cpp"
+#include "command_handler.cpp"
 #include "device_dram_read_req_multiplexer.cpp"
 #include "device_dram_read_resp_multiplexer.cpp"
+#include "dram_helper_app_0.cpp"
+#include "dram_helper_app_1.cpp"
+#include "dram_helper_app_2.cpp"
 #include "dram_read_delay_unit.cpp"
 #include "dram_read_req_multiplexer.cpp"
 #include "dram_read_req_time_marker.cpp"
@@ -187,12 +187,12 @@ void interconnects() {
   command_handler(poke, reqs_incoming, kbuf_addrs, dma_read_throttle_params,
                   dma_write_throttle_params, drive_read_delay_cycle_cnts,
                   drive_write_delay_cycle_cnts, drive_read_throttle_params,
-                  drive_write_throttle_params, 
-		  app_file_infos_0, app_file_infos_1, app_file_infos_2,
-		  app_buf_addrs_0, app_buf_addrs_1, app_buf_addrs_2,
-		  app_free_buf_0, app_free_buf_1, app_free_buf_2, 
-		  app_input_params_0, app_input_params_1, app_input_params_2,
-		  reset_sigs_0, reset_sigs_1, reset_sigs_2);
+                  drive_write_throttle_params, app_file_infos_0,
+                  app_file_infos_1, app_file_infos_2, app_buf_addrs_0,
+                  app_buf_addrs_1, app_buf_addrs_2, app_free_buf_0,
+                  app_free_buf_1, app_free_buf_2, app_input_params_0,
+                  app_input_params_1, app_input_params_2, reset_sigs_0,
+                  reset_sigs_1, reset_sigs_2);
 
   pcie_read_resp_passer(pcie_read_resp, before_throttle_pcie_read_resp);
   pcie_read_throttle_unit(dma_read_throttle_params,
@@ -243,12 +243,12 @@ void interconnects() {
                              after_throttle_unified_dram_read_resp,
                              dram_read_context);
 
-  device_dram_read_req_multiplexer(device_dram_req_context,
-				   device_dram_read_req, device_dram_read_req_0, 
-				   device_dram_read_req_1, device_dram_read_req_2);
-  device_dram_read_resp_multiplexer(device_dram_req_context,
-				    device_dram_read_resp, device_dram_read_resp_0, 
-				    device_dram_read_resp_1, device_dram_read_resp_2);
+  device_dram_read_req_multiplexer(
+      device_dram_req_context, device_dram_read_req, device_dram_read_req_0,
+      device_dram_read_req_1, device_dram_read_req_2);
+  device_dram_read_resp_multiplexer(
+      device_dram_req_context, device_dram_read_resp, device_dram_read_resp_0,
+      device_dram_read_resp_1, device_dram_read_resp_2);
 
   dram_read_throttle_unit(drive_read_throttle_params,
                           before_throttle_unified_dram_read_resp,
@@ -288,54 +288,68 @@ void interconnects() {
       unified_dram_dispatcher_read_context, host_wrcmd_fin_pcie_write_req_data,
       host_wrcmd_fin_pcie_write_req_apply, wrcmd_kbuf_addrs);
 
-  dram_helper_app_0(app_file_infos_0, device_dram_read_req_0, device_dram_read_resp_0,
-		    reset_dram_helper_app_0, 
-		    buf_app_input_data_0, buf_read_sig_app_input_data_0);
-  dram_helper_app_1(app_file_infos_1, device_dram_read_req_1, device_dram_read_resp_1,
-		    reset_dram_helper_app_1,
-		    buf_app_input_data_1, buf_read_sig_app_input_data_1);
-  dram_helper_app_2(app_file_infos_2, device_dram_read_req_2, device_dram_read_resp_2,
-		    reset_dram_helper_app_2,
-		    buf_app_input_data_2, buf_read_sig_app_input_data_2);
+  dram_helper_app_0(app_file_infos_0, device_dram_read_req_0,
+                    device_dram_read_resp_0, reset_dram_helper_app_0,
+                    buf_app_input_data_0, buf_read_sig_app_input_data_0);
+  dram_helper_app_1(app_file_infos_1, device_dram_read_req_1,
+                    device_dram_read_resp_1, reset_dram_helper_app_1,
+                    buf_app_input_data_1, buf_read_sig_app_input_data_1);
+  dram_helper_app_2(app_file_infos_2, device_dram_read_req_2,
+                    device_dram_read_resp_2, reset_dram_helper_app_2,
+                    buf_app_input_data_2, buf_read_sig_app_input_data_2);
 
-  buf_app_input_data_forwarder_0(buf_app_input_data_0, buf_read_sig_app_input_data_0,
-				 app_input_data_0, reset_buf_app_input_data_forwarder_0);
-  buf_app_input_data_forwarder_1(buf_app_input_data_1, buf_read_sig_app_input_data_1,
-				 app_input_data_1, reset_buf_app_input_data_forwarder_1);
-  buf_app_input_data_forwarder_2(buf_app_input_data_2, buf_read_sig_app_input_data_2,
-				 app_input_data_2, reset_buf_app_input_data_forwarder_2);
+  buf_app_input_data_forwarder_0(
+      buf_app_input_data_0, buf_read_sig_app_input_data_0, app_input_data_0,
+      reset_buf_app_input_data_forwarder_0);
+  buf_app_input_data_forwarder_1(
+      buf_app_input_data_1, buf_read_sig_app_input_data_1, app_input_data_1,
+      reset_buf_app_input_data_forwarder_1);
+  buf_app_input_data_forwarder_2(
+      buf_app_input_data_2, buf_read_sig_app_input_data_2, app_input_data_2,
+      reset_buf_app_input_data_forwarder_2);
 
   pcie_helper_app_0(app_buf_addrs_0, device_pcie_write_req_apply_0,
-                  device_pcie_write_req_data_0, app_output_data_splitted_0,
-                  app_output_data_meta_0, app_free_buf_0, reset_pcie_helper_app_0);
+                    device_pcie_write_req_data_0, app_output_data_splitted_0,
+                    app_output_data_meta_0, app_free_buf_0,
+                    reset_pcie_helper_app_0);
   pcie_data_splitter_app_0(app_output_data_0, app_output_data_splitted_0,
-                         app_output_data_meta_0, reset_pcie_data_splitter_app_0);
+                           app_output_data_meta_0,
+                           reset_pcie_data_splitter_app_0);
 
   pcie_helper_app_1(app_buf_addrs_1, device_pcie_write_req_apply_1,
-                  device_pcie_write_req_data_1, app_output_data_splitted_1,
-                  app_output_data_meta_1, app_free_buf_1, reset_pcie_helper_app_1);
+                    device_pcie_write_req_data_1, app_output_data_splitted_1,
+                    app_output_data_meta_1, app_free_buf_1,
+                    reset_pcie_helper_app_1);
   pcie_data_splitter_app_1(app_output_data_1, app_output_data_splitted_1,
-                         app_output_data_meta_1, reset_pcie_data_splitter_app_1);
+                           app_output_data_meta_1,
+                           reset_pcie_data_splitter_app_1);
 
   pcie_helper_app_2(app_buf_addrs_2, device_pcie_write_req_apply_2,
-                  device_pcie_write_req_data_2, app_output_data_splitted_2,
-                  app_output_data_meta_2, app_free_buf_2, reset_pcie_helper_app_2);
+                    device_pcie_write_req_data_2, app_output_data_splitted_2,
+                    app_output_data_meta_2, app_free_buf_2,
+                    reset_pcie_helper_app_2);
   pcie_data_splitter_app_2(app_output_data_2, app_output_data_splitted_2,
-                         app_output_data_meta_2, reset_pcie_data_splitter_app_2);
+                           app_output_data_meta_2,
+                           reset_pcie_data_splitter_app_2);
 
   ST_Queue<bool> reset_app_pt_0(4);
   ST_Queue<bool> reset_app_pt_1(4);
   ST_Queue<bool> reset_app_pt_2(4);
-  reset_propaganda(reset_sigs_0, reset_sigs_1, reset_sigs_2,
-		   reset_app_pt_0, reset_app_pt_1, reset_app_pt_2,
-		   reset_dram_helper_app_0, reset_dram_helper_app_1, reset_dram_helper_app_2,
-                   reset_pcie_helper_app_0, reset_pcie_helper_app_1, reset_pcie_helper_app_2,
-		   reset_pcie_data_splitter_app_0, reset_pcie_data_splitter_app_1, 
-		   reset_pcie_data_splitter_app_2, reset_buf_app_input_data_forwarder_0,
-		   reset_buf_app_input_data_forwarder_1, reset_buf_app_input_data_forwarder_2);
+  reset_propaganda(
+      reset_sigs_0, reset_sigs_1, reset_sigs_2, reset_app_pt_0, reset_app_pt_1,
+      reset_app_pt_2, reset_dram_helper_app_0, reset_dram_helper_app_1,
+      reset_dram_helper_app_2, reset_pcie_helper_app_0, reset_pcie_helper_app_1,
+      reset_pcie_helper_app_2, reset_pcie_data_splitter_app_0,
+      reset_pcie_data_splitter_app_1, reset_pcie_data_splitter_app_2,
+      reset_buf_app_input_data_forwarder_0,
+      reset_buf_app_input_data_forwarder_1,
+      reset_buf_app_input_data_forwarder_2);
 
   ;
-  app_pt_0(reset_app_pt_0, app_input_data_0, app_output_data_0, app_input_params_0);
-  app_pt_1(reset_app_pt_1, app_input_data_1, app_output_data_1, app_input_params_1);
-  app_pt_2(reset_app_pt_2, app_input_data_2, app_output_data_2, app_input_params_2);
+  app_pt_0(reset_app_pt_0, app_input_data_0, app_output_data_0,
+           app_input_params_0);
+  app_pt_1(reset_app_pt_1, app_input_data_1, app_output_data_1,
+           app_input_params_1);
+  app_pt_2(reset_app_pt_2, app_input_data_2, app_output_data_2,
+           app_input_params_2);
 }

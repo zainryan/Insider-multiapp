@@ -44,7 +44,7 @@
 #-  regulations governing limitations on product liability.
 #-
 #-  THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
-#-  PART OF THIS FILE AT ALL TIMES. 
+#-  PART OF THIS FILE AT ALL TIMES.
 #- ************************************************************************
 
  *
@@ -54,8 +54,10 @@
 #ifndef __AP_SC_EXT_H__
 #define __AP_SC_EXT_H__
 
-//for simulation
-#define wait_until(x) while(!x) wait();
+// for simulation
+#define wait_until(x)                                                          \
+  while (!x)                                                                   \
+    wait();
 
 #include "hls_bus_if.h"
 

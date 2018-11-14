@@ -40,18 +40,18 @@
 #error C++ is required to include this header file
 #endif
 
-#include "hls/dsp/utils/hls_dsp_common_utils.h"
-#include "hls/dsp/utils/hls_cordic_functions.h"
-#include "hls/dsp/utils/hls_cordic.h"
 #include "hls/dsp/hls_atan2_cordic.h"
 #include "hls/dsp/hls_awgn.h"
-#include "hls/dsp/hls_convolution_encoder.h"
 #include "hls/dsp/hls_cmpy.h"
+#include "hls/dsp/hls_convolution_encoder.h"
 #include "hls/dsp/hls_nco.h"
 #include "hls/dsp/hls_qam_demod.h"
 #include "hls/dsp/hls_qam_mod.h"
 #include "hls/dsp/hls_sqrt_cordic.h"
 #include "hls/dsp/hls_viterbi_decoder.h"
+#include "hls/dsp/utils/hls_cordic.h"
+#include "hls/dsp/utils/hls_cordic_functions.h"
+#include "hls/dsp/utils/hls_dsp_common_utils.h"
 
 #endif
 

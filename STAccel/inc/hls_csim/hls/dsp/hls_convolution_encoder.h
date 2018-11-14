@@ -32,49 +32,47 @@
 #ifndef HLS_CONVOLUTION_ENCODER_H
 #define HLS_CONVOLUTION_ENCODER_H
 
-#include "hls/dsp/utils/hls_dsp_common_utils.h"
 #include "ap_int.h"
+#include "hls/dsp/utils/hls_dsp_common_utils.h"
 #include <hls_stream.h>
 
 namespace hls {
 
-  // ===================================================================================================================
-  // CONVOLUTION_ENCODER: Class definition
-  // o Template parameters:
-  //  - OutputWidth      : Defines number of bits in the output bus; 1 bit when Punctured=true and DualOutput=false, 2 bits when DualOutput=true, else OutputRate bits
-  //  - Punctured        : When true, enables puncturing of data
-  //  - DualOutput       : When true, enables dual outputs with punctured data
-  //  - InputRate        : Defines numerator of code rate
-  //  - OutputRate       : Defines denominator of code rate
-  //  - ConstraintLength : The constraint length, K, is the number of registers in the encoder, plus one
-  //  - PunctureCode0    : When Punctured=true, puncture code for output 0.  Length (in binary) must equal the puncture input rate.  Total number of 1's in both PunctureCode parameters equals the output rate.
-  //  - PunctureCode1    : When Punctured=true, puncture code for output 1.  Length (in binary) must equal the puncture input rate.  Total number of 1's in both PunctureCode parameters equals the output rate.
-  //  - ConvolutionCode0 : Convolution code for rates 1/2 to 1/7   -
-  //  - ConvolutionCode1 : Convolution code for rates 1/2 to 1/7    |
-  //  - ConvolutionCode2 : Convolution code for rates 1/3 to 1/7    |
-  //  - ConvolutionCode3 : Convolution code for rates 1/4 to 1/7    | Length (in binary) for all convolution codes (if used) must equal the constraint length value.
-  //  - ConvolutionCode4 : Convolution code for rates 1/5 to 1/7    |
-  //  - ConvolutionCode5 : Convolution code for rates 1/6 to 1/7    |
-  //  - ConvolutionCode6 : Convolution code for rate 1/7           -
-template<
-  int OutputWidth,
-  bool Punctured,
-  bool DualOutput,
-  int InputRate,
-  int OutputRate,
-  int ConstraintLength,
-  int PunctureCode0,
-  int PunctureCode1,
-  int ConvolutionCode0,
-  int ConvolutionCode1,
-  int ConvolutionCode2,
-  int ConvolutionCode3,
-  int ConvolutionCode4,
-  int ConvolutionCode5,
-  int ConvolutionCode6>
-  class convolution_encoder {
+// ===================================================================================================================
+// CONVOLUTION_ENCODER: Class definition
+// o Template parameters:
+//  - OutputWidth      : Defines number of bits in the output bus; 1 bit when
+//  Punctured=true and DualOutput=false, 2 bits when DualOutput=true, else
+//  OutputRate bits
+//  - Punctured        : When true, enables puncturing of data
+//  - DualOutput       : When true, enables dual outputs with punctured data
+//  - InputRate        : Defines numerator of code rate
+//  - OutputRate       : Defines denominator of code rate
+//  - ConstraintLength : The constraint length, K, is the number of registers in
+//  the encoder, plus one
+//  - PunctureCode0    : When Punctured=true, puncture code for output 0. Length
+//  (in binary) must equal the puncture input rate.  Total number of 1's in both
+//  PunctureCode parameters equals the output rate.
+//  - PunctureCode1    : When Punctured=true, puncture code for output 1. Length
+//  (in binary) must equal the puncture input rate.  Total number of 1's in both
+//  PunctureCode parameters equals the output rate.
+//  - ConvolutionCode0 : Convolution code for rates 1/2 to 1/7   -
+//  - ConvolutionCode1 : Convolution code for rates 1/2 to 1/7    |
+//  - ConvolutionCode2 : Convolution code for rates 1/3 to 1/7    |
+//  - ConvolutionCode3 : Convolution code for rates 1/4 to 1/7    | Length (in
+//  binary) for all convolution codes (if used) must equal the constraint length
+//  value.
+//  - ConvolutionCode4 : Convolution code for rates 1/5 to 1/7    |
+//  - ConvolutionCode5 : Convolution code for rates 1/6 to 1/7    |
+//  - ConvolutionCode6 : Convolution code for rate 1/7           -
+template <int OutputWidth, bool Punctured, bool DualOutput, int InputRate,
+          int OutputRate, int ConstraintLength, int PunctureCode0,
+          int PunctureCode1, int ConvolutionCode0, int ConvolutionCode1,
+          int ConvolutionCode2, int ConvolutionCode3, int ConvolutionCode4,
+          int ConvolutionCode5, int ConvolutionCode6>
+class convolution_encoder {
 
- public:
+public:
   convolution_encoder() {
 
     // Set initial and reset values
@@ -101,26 +99,24 @@ template<
 
   } // end constructor
 
-  ~convolution_encoder() {
-  } // end destructor
+  ~convolution_encoder() {} // end destructor
 
   // ===================================================================================================================
   // CONVOLUTION_ENCODER: Entry point function.
   // o Arguments:
   //  - inputData        : Single-bit datastream to be encoded
-  //  - outputData       : Encoded datastream; OutputRate-bits wide unless Punctured=true (1-bit wide) or DualOutput=true (2-bits wide)
-  void operator()(stream< ap_uint<1> > &inputData,
-                  stream< ap_uint<OutputWidth> > &outputData) {
+  //  - outputData       : Encoded datastream; OutputRate-bits wide unless
+  //  Punctured=true (1-bit wide) or DualOutput=true (2-bits wide)
+  void operator()(stream<ap_uint<1>> &inputData,
+                  stream<ap_uint<OutputWidth>> &outputData) {
 
-      Function_convolution_encoder_operator:;
+  Function_convolution_encoder_operator:;
 
-      encode(inputData, outputData);
+    encode(inputData, outputData);
 
-    }; // operator()
+  }; // operator()
 
-
- private:
-
+private:
   // Shared constants
   static const int MAX_CONVOLUTION_CODES = 7;
   static const int MAX_PUNCTURE_CODES = 2;
@@ -131,54 +127,69 @@ template<
   };
 
   struct PunctureRegisterStages {
-    enum { stages = (DualOutput ? 2*InputRate : InputRate) };
+    enum { stages = (DualOutput ? 2 * InputRate : InputRate) };
   };
 
   struct PunctureCountMax {
-    enum { max = (DualOutput ? (2*InputRate)-1 : OutputRate-1) };
+    enum { max = (DualOutput ? (2 * InputRate) - 1 : OutputRate - 1) };
   };
 
   // State variables
-  ap_uint<ConstraintLength-1> constraint_register;
-  ap_uint<EncoderOutputWidth::width> puncture_register[PunctureRegisterStages::stages]; // No reset required
-  ap_uint<OutputWidth> output_register[OutputRate]; // No reset required
+  ap_uint<ConstraintLength - 1> constraint_register;
+  ap_uint<EncoderOutputWidth::width>
+      puncture_register[PunctureRegisterStages::stages]; // No reset required
+  ap_uint<OutputWidth> output_register[OutputRate];      // No reset required
   ap_uint<bitstorepresent<PunctureCountMax::max>::bits> puncture_count;
   ap_uint<1> output_valid;
-  ap_uint<bitstorepresent<PunctureRegisterStages::stages>::bits> output_valid_count;
+  ap_uint<bitstorepresent<PunctureRegisterStages::stages>::bits>
+      output_valid_count;
 
-  // These arrays are considered constant, and are initialized in the constructor
+  // These arrays are considered constant, and are initialized in the
+  // constructor
   ap_uint<ConstraintLength> convolution_codes[MAX_CONVOLUTION_CODES];
   ap_uint<InputRate> puncture_codes[MAX_PUNCTURE_CODES];
 
   void check_params() {
-    // Verify that template parameters are correct in simulation
-    #ifndef __SYNTHESIS__
+// Verify that template parameters are correct in simulation
+#ifndef __SYNTHESIS__
     if (ConstraintLength < 3 || ConstraintLength > 9) {
-      std::cout << "ERROR: " << __FILE__ << ": ConstraintLength must be 3 to 9" << std::endl;
+      std::cout << "ERROR: " << __FILE__ << ": ConstraintLength must be 3 to 9"
+                << std::endl;
       exit(1);
     }
     if (Punctured) {
       if (DualOutput && OutputWidth != 2) {
-        std::cout << "ERROR: " << __FILE__ << ": OutputWidth must be 2 for a punctured encoder with dual output" << std::endl;
+        std::cout << "ERROR: " << __FILE__
+                  << ": OutputWidth must be 2 for a punctured encoder with "
+                     "dual output"
+                  << std::endl;
         exit(1);
       }
       if (!DualOutput && OutputWidth != 1) {
-        std::cout << "ERROR: " << __FILE__ << ": OutputWidth must be 1 for a punctured encoder without dual output" << std::endl;
+        std::cout << "ERROR: " << __FILE__
+                  << ": OutputWidth must be 1 for a punctured encoder without "
+                     "dual output"
+                  << std::endl;
         exit(1);
       }
       if (InputRate < 2 || InputRate > 12) {
-        std::cout << "ERROR: " << __FILE__ << ": InputRate must be 2 to 12" << std::endl;
+        std::cout << "ERROR: " << __FILE__ << ": InputRate must be 2 to 12"
+                  << std::endl;
         exit(1);
       }
-      if (OutputRate < InputRate+1 || OutputRate > (2*InputRate)-1) {
-        std::cout << "ERROR: " << __FILE__ << ": OutputRate must be InputRate+1 to (2*InputRate)-1" << std::endl;
+      if (OutputRate < InputRate + 1 || OutputRate > (2 * InputRate) - 1) {
+        std::cout << "ERROR: " << __FILE__
+                  << ": OutputRate must be InputRate+1 to (2*InputRate)-1"
+                  << std::endl;
         exit(1);
       }
       // Check the puncturing codes are valid
       int bits_set = 0;
-      puncture_code_loop: for (int j=0; j<MAX_PUNCTURE_CODES; j++) {
+    puncture_code_loop:
+      for (int j = 0; j < MAX_PUNCTURE_CODES; j++) {
         int code = puncture_codes[j];
-        input_rate_loop: for (int i=0; i<InputRate; i++) {
+      input_rate_loop:
+        for (int i = 0; i < InputRate; i++) {
           if (code % 2 == 1) {
             bits_set++;
           }
@@ -189,48 +200,58 @@ template<
         }
       }
       if (bits_set != OutputRate) {
-        std::cout << "ERROR: " << __FILE__ << ": Puncture codes are incorrect.  Binary length of each code must equal InputRate, number of bits set must equal OutputRate" << std::endl;
+        std::cout
+            << "ERROR: " << __FILE__
+            << ": Puncture codes are incorrect.  Binary length of each code "
+               "must equal InputRate, number of bits set must equal OutputRate"
+            << std::endl;
         exit(2);
       }
     } else {
       if (OutputWidth != OutputRate) {
-        std::cout << "ERROR: " << __FILE__ << ": OutputWidth must equal OutputRate" << std::endl;
+        std::cout << "ERROR: " << __FILE__
+                  << ": OutputWidth must equal OutputRate" << std::endl;
         exit(1);
       }
       if (InputRate > 1) {
-        std::cout << "ERROR: " << __FILE__ << ": InputRate must be 1" << std::endl;
+        std::cout << "ERROR: " << __FILE__ << ": InputRate must be 1"
+                  << std::endl;
         exit(1);
       }
       if (OutputRate < 2 || OutputRate > 7) {
-        std::cout << "ERROR: " << __FILE__ << ": OutputRate must be 2 to 7" << std::endl;
+        std::cout << "ERROR: " << __FILE__ << ": OutputRate must be 2 to 7"
+                  << std::endl;
         exit(1);
       }
       if (DualOutput) {
-        std::cout << "ERROR: " << __FILE__ << ": Dual Output is only supported when Puncturing is used" << std::endl;
+        std::cout << "ERROR: " << __FILE__
+                  << ": Dual Output is only supported when Puncturing is used"
+                  << std::endl;
         exit(1);
       }
     }
-    #endif
+#endif
   }; // check_params
 
-  // Core function.  Performs convolutional encoding of a datastream, with optional puncturing
-  void encode(stream< ap_uint<1> > &inputData,
-              stream< ap_uint<OutputWidth> > &outputData) {
+  // Core function.  Performs convolutional encoding of a datastream, with
+  // optional puncturing
+  void encode(stream<ap_uint<1>> &inputData,
+              stream<ap_uint<OutputWidth>> &outputData) {
 
-    Function_convolution_encoder_encode:;
+  Function_convolution_encoder_encode:;
 
-    // Optimal resources and throughput are achieved when pipelined
-    // Estimated resources are slightly lower when the directive is placed here
-    #pragma HLS PIPELINE II=1
+// Optimal resources and throughput are achieved when pipelined
+// Estimated resources are slightly lower when the directive is placed here
+#pragma HLS PIPELINE II = 1
 
-    // Ensure state variables are reset
-    #pragma HLS RESET variable=constraint_register
-    #pragma HLS RESET variable=puncture_count
-    #pragma HLS RESET variable=output_valid
-    #pragma HLS RESET variable=output_valid_count
+// Ensure state variables are reset
+#pragma HLS RESET variable = constraint_register
+#pragma HLS RESET variable = puncture_count
+#pragma HLS RESET variable = output_valid
+#pragma HLS RESET variable = output_valid_count
 
-    // Flatten puncture register to achieve II=1
-    #pragma HLS ARRAY_PARTITION variable=puncture_register complete
+// Flatten puncture register to achieve II=1
+#pragma HLS ARRAY_PARTITION variable = puncture_register complete
 
     ap_uint<1> encoder_in;
     ap_uint<EncoderOutputWidth::width> encoded_data;
@@ -238,47 +259,58 @@ template<
     if (!Punctured || DualOutput || puncture_count < InputRate) {
       encoder_in = inputData.read();
 
-      // Perform encoding
-      encode_loop: for (int i=0; i< EncoderOutputWidth::width; i++) {
-        ap_uint<ConstraintLength> tmpData = (constraint_register,encoder_in); // temporary variable allows use of .reverse()
-        encoded_data[i] = (tmpData.reverse() & (convolution_codes[i])).xor_reduce();
+    // Perform encoding
+    encode_loop:
+      for (int i = 0; i < EncoderOutputWidth::width; i++) {
+        ap_uint<ConstraintLength> tmpData =
+            (constraint_register,
+             encoder_in); // temporary variable allows use of .reverse()
+        encoded_data[i] =
+            (tmpData.reverse() & (convolution_codes[i])).xor_reduce();
       }
 
       if (!Punctured) {
         // Output data directly
         outputData << encoded_data;
       } else {
-        // Write into puncture register for puncturing operation
-        puncture_register_loop: for (int i=PunctureRegisterStages::stages-1; i>0; i--) {
-          puncture_register[i] = puncture_register[i-1];
+      // Write into puncture register for puncturing operation
+      puncture_register_loop:
+        for (int i = PunctureRegisterStages::stages - 1; i > 0; i--) {
+          puncture_register[i] = puncture_register[i - 1];
         }
         puncture_register[0] = encoded_data;
       }
 
       // Shift contraint register for next cycle
-      constraint_register = (constraint_register,encoder_in);
+      constraint_register = (constraint_register, encoder_in);
     }
 
     if (Punctured) {
 
-    /*
-      In the punctured configuration, the basic convolution encoder is always a rate 1/2 encoder, with two bits output for
-      every one bit input. After the encoding, certain bits of the rate 1/2 encoded data are punctured (or deleted) and not
-      transmitted.  Thus, for a rate 3/4 punctured encoder, for every three input bits, only four of the six encoded bits generated
-      by the encoder are actually transmitted.
+      /*
+        In the punctured configuration, the basic convolution encoder is always
+        a rate 1/2 encoder, with two bits output for every one bit input. After
+        the encoding, certain bits of the rate 1/2 encoded data are punctured
+        (or deleted) and not transmitted.  Thus, for a rate 3/4 punctured
+        encoder, for every three input bits, only four of the six encoded bits
+        generated by the encoder are actually transmitted.
 
-      The single-output puncturing mode outputs more data than was input.  The dual-output puncturing mode outputs less
-      data than was input.  In both cases, some rate control is required, which is implemented with the output_valid signal.
-    */
+        The single-output puncturing mode outputs more data than was input.  The
+        dual-output puncturing mode outputs less data than was input.  In both
+        cases, some rate control is required, which is implemented with the
+        output_valid signal.
+      */
 
       if (!DualOutput) {
 
         if (puncture_count == InputRate) {
 
           // Do puncturing
-          int k=OutputRate-1;
-          single_punc_outer_loop: for (int i=InputRate-1; i>=0; i--) {
-            single_punc_inner_loop: for (int j=0; j<MAX_PUNCTURE_CODES; j++) {
+          int k = OutputRate - 1;
+        single_punc_outer_loop:
+          for (int i = InputRate - 1; i >= 0; i--) {
+          single_punc_inner_loop:
+            for (int j = 0; j < MAX_PUNCTURE_CODES; j++) {
               if (puncture_codes[j][i] == 1) {
                 output_register[k][0] = puncture_register[i][j];
                 k--;
@@ -288,15 +320,16 @@ template<
 
         } else {
 
-          // Shift data for output
-          single_shift_loop: for (int i=OutputRate-1; i>0; i--) {
-            output_register[i][0] = output_register[i-1][0];
+        // Shift data for output
+        single_shift_loop:
+          for (int i = OutputRate - 1; i > 0; i--) {
+            output_register[i][0] = output_register[i - 1][0];
           }
           output_register[0][0] = 0;
         }
 
         if (output_valid == 1) {
-          outputData << output_register[OutputRate-1][0];
+          outputData << output_register[OutputRate - 1][0];
         }
 
       } else { // DualOutput
@@ -305,15 +338,18 @@ template<
 
           // Do puncturing
           int row = 0;
-          int col = OutputRate-1;
-          dual_width_loop: for (int i=OutputWidth-1; i>=0; i--) {
-            int offset = i*InputRate;
-            dual_punc_outer_loop: for (int j=InputRate-1; j>=0; j--) {
-              dual_punc_inner_loop: for (int k=0; k<MAX_PUNCTURE_CODES; k++) {
+          int col = OutputRate - 1;
+        dual_width_loop:
+          for (int i = OutputWidth - 1; i >= 0; i--) {
+            int offset = i * InputRate;
+          dual_punc_outer_loop:
+            for (int j = InputRate - 1; j >= 0; j--) {
+            dual_punc_inner_loop:
+              for (int k = 0; k < MAX_PUNCTURE_CODES; k++) {
                 if (puncture_codes[k][j] == 1) {
-                  output_register[col][row] = puncture_register[j+offset][k];
-                  col = col-row;
-                  row = 1-row;
+                  output_register[col][row] = puncture_register[j + offset][k];
+                  col = col - row;
+                  row = 1 - row;
                 }
               }
             }
@@ -322,15 +358,15 @@ template<
         } else {
 
           if (output_valid == 1) {
-            outputData << output_register[OutputRate-1];
+            outputData << output_register[OutputRate - 1];
           }
 
-          // Shift data for output
-          dual_shift_loop: for (int i=OutputRate-1; i>0; i--) {
-            output_register[i] = output_register[i-1];
+        // Shift data for output
+        dual_shift_loop:
+          for (int i = OutputRate - 1; i > 0; i--) {
+            output_register[i] = output_register[i - 1];
           }
           output_register[0] = 0;
-
         }
 
       } // DualOutput
@@ -343,8 +379,8 @@ template<
       }
 
       // Output valid flag controls writes to output FIFO
-      if (output_valid_count == PunctureRegisterStages::stages-1) {
-        output_valid_count = PunctureRegisterStages::stages-1;
+      if (output_valid_count == PunctureRegisterStages::stages - 1) {
+        output_valid_count = PunctureRegisterStages::stages - 1;
         output_valid = 1;
       } else {
         output_valid_count++;
@@ -354,11 +390,10 @@ template<
 
   } // encode
 
-  }; // end class convolution_encoder
+}; // end class convolution_encoder
 
 } // end namespace hls
 
 #endif // HLS_CONVOLUTION_ENCODER_H
-
 
 // 67d7842dbbe25473c3c32b93c0da8047785f30d78e8a024de1b57352245f9689

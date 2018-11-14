@@ -13,9 +13,9 @@
 // implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <unistd.h>
 
 #ifndef VIVADO_SIM
@@ -66,15 +66,13 @@ void test_main(uint32_t *exit_code) {
   *exit_code = 0;
 }
 
-unsigned char* get_ptr_app_input_data(int idx) {
-  unsigned char* ptr_app_input_data;
+unsigned char *get_ptr_app_input_data(int idx) {
+  unsigned char *ptr_app_input_data;
   if (idx == 0) {
     ptr_app_input_data = app_input_data_0;
-  }
-  else if (idx == 1) {
+  } else if (idx == 1) {
     ptr_app_input_data = app_input_data_1;
-  }
-  else if (idx == 2) {
+  } else if (idx == 2) {
     ptr_app_input_data = app_input_data_2;
   }
   return ptr_app_input_data;
@@ -89,8 +87,8 @@ void user_simulation_function() {
   set_physical_file(0, app_input_data_0, sizeof(app_input_data_0));
   set_physical_file(1, app_input_data_1, sizeof(app_input_data_1));
   set_physical_file(2, app_input_data_2, sizeof(app_input_data_2));
-  
-  for (i = 0; i < 3000; i ++) {
+
+  for (i = 0; i < 3000; i++) {
     printf("i = %d\n", i);
     cl_poke(TAG(DEBUG_TAG), 0);
   }
@@ -98,11 +96,11 @@ void user_simulation_function() {
   int fd[APP_NUM], fin_file[APP_NUM] = {0, 0, 0};
   int total_read_bytes[APP_NUM] = {0, 0, 0};
   int fin_file_num = 0;
-  int size_app_input_data[APP_NUM] = {sizeof(app_input_data_0), 
-				      sizeof(app_input_data_1), 
-				      sizeof(app_input_data_2)};
+  int size_app_input_data[APP_NUM] = {sizeof(app_input_data_0),
+                                      sizeof(app_input_data_1),
+                                      sizeof(app_input_data_2)};
 
-  unsigned char* buf[APP_NUM];
+  unsigned char *buf[APP_NUM];
   for (i = 0; i < APP_NUM; i++) {
     fd[i] = iopen(i, "cosim_phy_file", 0);
     buf[i] = (unsigned char *)malloc(READ_BUF_SIZE);
@@ -110,23 +108,21 @@ void user_simulation_function() {
 
   while (fin_file_num != APP_NUM) {
     for (i = 0; i < APP_NUM; i++) {
-      unsigned char* ptr_app_input_data =
-	get_ptr_app_input_data(i);
+      unsigned char *ptr_app_input_data = get_ptr_app_input_data(i);
       if (!fin_file[i]) {
-	int read_bytes = 0;
-	while (read_bytes != READ_BUF_SIZE) {
-	  int tmp = iread(fd[i], buf[i], READ_BUF_SIZE - read_bytes);
-	  if (!tmp) {
-	    printf("file %d fin.\n", i);
-	    fin_file[i] = 1;
-	    fin_file_num++;
-	    break;
-	  }
-	  else {
-	    read_bytes += tmp;
-	  }
-	}
-	total_read_bytes[i] += read_bytes;
+        int read_bytes = 0;
+        while (read_bytes != READ_BUF_SIZE) {
+          int tmp = iread(fd[i], buf[i], READ_BUF_SIZE - read_bytes);
+          if (!tmp) {
+            printf("file %d fin.\n", i);
+            fin_file[i] = 1;
+            fin_file_num++;
+            break;
+          } else {
+            read_bytes += tmp;
+          }
+        }
+        total_read_bytes[i] += read_bytes;
       }
     }
   }
@@ -138,25 +134,23 @@ void user_simulation_function() {
       expected_total_read_bytes = DATA_BUS_WIDTH;
     }
     printf("total_read_bytes[%c] = %d\n", i + '0', total_read_bytes[i]);
-    printf("expected_total_read_bytes[%c] = %d\n", i + '0', 
-	   expected_total_read_bytes);
+    printf("expected_total_read_bytes[%c] = %d\n", i + '0',
+           expected_total_read_bytes);
     success &= (total_read_bytes[i] == expected_total_read_bytes);
 
-    unsigned char* ptr_app_input_data =
-      get_ptr_app_input_data(i);
+    unsigned char *ptr_app_input_data = get_ptr_app_input_data(i);
     for (j = 0; j < expected_total_read_bytes; j++) {
-      int expected_data = 
-	ptr_app_input_data[size_app_input_data[i] - expected_total_read_bytes + j];
+      int expected_data = ptr_app_input_data[size_app_input_data[i] -
+                                             expected_total_read_bytes + j];
       if (buf[i][j] != expected_data) {
-	printf("idx = %d, expected_data = %d, real_data = %d\n", 
-	       j, expected_data, (int)buf[i][j]);
-	success = 0;
-	break;
+        printf("idx = %d, expected_data = %d, real_data = %d\n", j,
+               expected_data, (int)buf[i][j]);
+        success = 0;
+        break;
       }
     }
     puts("\n");
   }
-
 
   if (success) {
     puts("Test PASSED");

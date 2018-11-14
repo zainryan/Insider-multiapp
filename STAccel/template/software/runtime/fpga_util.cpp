@@ -1,6 +1,6 @@
 #include "const.h"
-#include "fpga_pci.h"
 #include "fpga_mgmt.h"
+#include "fpga_pci.h"
 #include "utils/lcd.h"
 #include <pthread.h>
 
@@ -14,7 +14,7 @@ uint64_t _IBufs_phy[INUM_LIMIT];
 uint64_t _OBufs_phy[ONUM_LIMIT];
 int _configfds[INUM_LIMIT + ONUM_LIMIT];
 uint8_t _inputL = 0;
-uint8_t _inputR = 0; 
+uint8_t _inputR = 0;
 bool _input_empty = false;
 uint8_t _outputL = 0;
 uint8_t _outputR = 0;

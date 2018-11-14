@@ -68,14 +68,14 @@
 #-  regulations governing limitations on product liability.
 #-
 #-  THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
-#-  PART OF THIS FILE AT ALL TIMES. 
+#-  PART OF THIS FILE AT ALL TIMES.
 #- ************************************************************************
 
  *
  *****************************************************************************/
 
 /*
- * This file contains the definition of the data types for AXI streaming. 
+ * This file contains the definition of the data types for AXI streaming.
  * ap_axi_s is a signed interpretation of the AXI stream
  * ap_axi_u is an unsigned interpretation of the AXI stream
  */
@@ -85,30 +85,28 @@
 
 #include "ap_int.h"
 
-template<int D,int U,int TI,int TD>
-  struct ap_axis{
-    ap_int<D>        data;
-    ap_uint<(D+7)/8> keep;
-    ap_uint<(D+7)/8> strb;
-    ap_uint<U>       user;
-    ap_uint<1>       last;
-    ap_uint<TI>      id;
-    ap_uint<TD>      dest;
-  };
+template <int D, int U, int TI, int TD> struct ap_axis {
+  ap_int<D> data;
+  ap_uint<(D + 7) / 8> keep;
+  ap_uint<(D + 7) / 8> strb;
+  ap_uint<U> user;
+  ap_uint<1> last;
+  ap_uint<TI> id;
+  ap_uint<TD> dest;
+};
 
-template<int D,int U,int TI,int TD>
-  struct ap_axiu{
-    ap_uint<D>       data;
-    ap_uint<(D+7)/8> keep;
-    ap_uint<(D+7)/8> strb;
-    ap_uint<U>       user;
-    ap_uint<1>       last;
-    ap_uint<TI>      id;
-    ap_uint<TD>      dest;
-  };
+template <int D, int U, int TI, int TD> struct ap_axiu {
+  ap_uint<D> data;
+  ap_uint<(D + 7) / 8> keep;
+  ap_uint<(D + 7) / 8> strb;
+  ap_uint<U> user;
+  ap_uint<1> last;
+  ap_uint<TI> id;
+  ap_uint<TD> dest;
+};
 
-//typedef ap_axis<int D, int U, int TI, int TD> ap_axis_unsigned<int D, int U, int TI, int TD>;
-
+// typedef ap_axis<int D, int U, int TI, int TD> ap_axis_unsigned<int D, int U,
+// int TI, int TD>;
 
 #endif
 

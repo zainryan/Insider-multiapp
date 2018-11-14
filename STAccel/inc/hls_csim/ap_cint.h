@@ -44,44 +44,42 @@
 #-  regulations governing limitations on product liability.
 #-
 #-  THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
-#-  PART OF THIS FILE AT ALL TIMES. 
+#-  PART OF THIS FILE AT ALL TIMES.
 #- ************************************************************************
 
  *
  * $Id$
  */
 
-
 #ifndef _AUTOPILOT_CINT_H_
 #define _AUTOPILOT_CINT_H_
 
-#if (defined __llvm__) || \
-    (defined AESL_TB) || (defined AUTOPILOT_BC_SIM) || (__RTL_SIMULATION__)
+#if (defined __llvm__) || (defined AESL_TB) || (defined AUTOPILOT_BC_SIM) ||   \
+    (__RTL_SIMULATION__)
 
 #ifndef __openclc
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 #endif
 
 #ifdef __CYGWIN__
-#  ifdef feof
-#    undef feof
-#  endif
-
-#  ifdef ferror
-#    undef ferror
-#  endif
+#ifdef feof
+#undef feof
 #endif
 
+#ifdef ferror
+#undef ferror
+#endif
+#endif
 
 #include "etc/autopilot_apint.h"
 
 #else
-#  ifdef __cplusplus
-#  error This header file cannot be used in a C++ design. 
-#  else
-#  error This header file does not support debugging. Do not select "Debug" in GUI.
-#  endif
+#ifdef __cplusplus
+#error This header file cannot be used in a C++ design.
+#else
+#error This header file does not support debugging. Do not select "Debug" in GUI.
+#endif
 #endif /* SYN or AUTOCC */
 #endif /* #ifndef _AUTOPILOT_CINT_H_ */
 

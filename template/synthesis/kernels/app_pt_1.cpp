@@ -5,7 +5,7 @@
 #define PROCESSING_PERIOD (3)
 
 /**
-   This maximum data processing rate of this kernel 
+   This maximum data processing rate of this kernel
    = 0.33 flit per cycle = 5.28 gibibyte/s
  */
 void app_pt_1(ST_Queue<bool> &reset_app_pt_1,
@@ -28,7 +28,7 @@ void app_pt_1(ST_Queue<bool> &reset_app_pt_1,
       if (reset_cnt == RESET_CNT) {
         reset_cnt = 0;
         reset = false;
-	state = 0;
+        state = 0;
       }
     } else {
       unsigned int dummy0, dummy1;
@@ -36,12 +36,12 @@ void app_pt_1(ST_Queue<bool> &reset_app_pt_1,
       APP_Data data;
       state++;
       if (state == PROCESSING_PERIOD) {
-	if (app_input_data.read_nb(data)) {
-	  if (data.eop) {
-	    app_output_data.write(data);
-	  }
-	}
-	state = 0;
+        if (app_input_data.read_nb(data)) {
+          if (data.eop) {
+            app_output_data.write(data);
+          }
+        }
+        state = 0;
       }
     }
   }

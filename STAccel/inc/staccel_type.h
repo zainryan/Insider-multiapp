@@ -8,30 +8,27 @@
 #include <hls_stream.h>
 #define ST_Queue hls::stream
 #else
-#include <boost/lockfree/queue.hpp>  
-template <typename T>
-class ST_Queue {
+#include <boost/lockfree/queue.hpp>
+template <typename T> class ST_Queue {
 private:
   boost::lockfree::queue<T> queue;
+
 public:
   ST_Queue(size_t depth) : queue(depth) {}
 
-  bool read_nb(T &data) {
-    return queue.pop(data);
-  }
+  bool read_nb(T &data) { return queue.pop(data); }
 
-  bool write_nb(T data) {
-    return queue.push(data);
-  }
+  bool write_nb(T data) { return queue.push(data); }
 
   void read(T &data) {
-    while (!queue.pop(data));
+    while (!queue.pop(data))
+      ;
   }
 
   void write(T data) {
-    while (!queue.push(data));
+    while (!queue.push(data))
+      ;
   }
-
 };
 #endif
 

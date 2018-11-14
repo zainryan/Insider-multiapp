@@ -28,72 +28,74 @@
  *
  */
 
-#import <UIKit/UIKit.h>
-#import <Accelerate/Accelerate.h>
-#import <AVFoundation/AVFoundation.h>
-#import <ImageIO/ImageIO.h>
 #include "opencv2/core/core.hpp"
+#import <AVFoundation/AVFoundation.h>
+#import <Accelerate/Accelerate.h>
+#import <ImageIO/ImageIO.h>
+#import <UIKit/UIKit.h>
 
-/////////////////////////////////////// CvAbstractCamera /////////////////////////////////////
+/////////////////////////////////////// CvAbstractCamera
+////////////////////////////////////////
 
 @class CvAbstractCamera;
 
-@interface CvAbstractCamera : NSObject
-{
-    AVCaptureSession* captureSession;
-    AVCaptureConnection* videoCaptureConnection;
-    AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
+@interface CvAbstractCamera : NSObject {
+  AVCaptureSession *captureSession;
+  AVCaptureConnection *videoCaptureConnection;
+  AVCaptureVideoPreviewLayer *captureVideoPreviewLayer;
 
-    UIDeviceOrientation currentDeviceOrientation;
+  UIDeviceOrientation currentDeviceOrientation;
 
-    BOOL cameraAvailable;
-    BOOL captureSessionLoaded;
-    BOOL running;
-    BOOL useAVCaptureVideoPreviewLayer;
+  BOOL cameraAvailable;
+  BOOL captureSessionLoaded;
+  BOOL running;
+  BOOL useAVCaptureVideoPreviewLayer;
 
-    AVCaptureDevicePosition defaultAVCaptureDevicePosition;
-    AVCaptureVideoOrientation defaultAVCaptureVideoOrientation;
-    NSString *const defaultAVCaptureSessionPreset;
+  AVCaptureDevicePosition defaultAVCaptureDevicePosition;
+  AVCaptureVideoOrientation defaultAVCaptureVideoOrientation;
+  NSString *const defaultAVCaptureSessionPreset;
 
-    int defaultFPS;
+  int defaultFPS;
 
-    UIView* parentView;
+  UIView *parentView;
 
-    int imageWidth;
-    int imageHeight;
+  int imageWidth;
+  int imageHeight;
 }
 
-@property (nonatomic, retain) AVCaptureSession* captureSession;
-@property (nonatomic, retain) AVCaptureConnection* videoCaptureConnection;
+@property(nonatomic, retain) AVCaptureSession *captureSession;
+@property(nonatomic, retain) AVCaptureConnection *videoCaptureConnection;
 
-@property (nonatomic, readonly) BOOL running;
-@property (nonatomic, readonly) BOOL captureSessionLoaded;
+@property(nonatomic, readonly) BOOL running;
+@property(nonatomic, readonly) BOOL captureSessionLoaded;
 
-@property (nonatomic, assign) int defaultFPS;
-@property (nonatomic, assign) AVCaptureDevicePosition defaultAVCaptureDevicePosition;
-@property (nonatomic, assign) AVCaptureVideoOrientation defaultAVCaptureVideoOrientation;
-@property (nonatomic, assign) BOOL useAVCaptureVideoPreviewLayer;
-@property (nonatomic, strong) NSString *const defaultAVCaptureSessionPreset;
+@property(nonatomic, assign) int defaultFPS;
+@property(nonatomic, assign)
+    AVCaptureDevicePosition defaultAVCaptureDevicePosition;
+@property(nonatomic, assign)
+    AVCaptureVideoOrientation defaultAVCaptureVideoOrientation;
+@property(nonatomic, assign) BOOL useAVCaptureVideoPreviewLayer;
+@property(nonatomic, strong) NSString *const defaultAVCaptureSessionPreset;
 
-@property (nonatomic, assign) int imageWidth;
-@property (nonatomic, assign) int imageHeight;
+@property(nonatomic, assign) int imageWidth;
+@property(nonatomic, assign) int imageHeight;
 
-@property (nonatomic, retain) UIView* parentView;
+@property(nonatomic, retain) UIView *parentView;
 
 - (void)start;
 - (void)stop;
 - (void)switchCameras;
 
-- (id)initWithParentView:(UIView*)parent;
+- (id)initWithParentView:(UIView *)parent;
 
 - (void)createCaptureOutput;
 - (void)createVideoPreviewLayer;
 - (void)updateOrientation;
 
-
 @end
 
-///////////////////////////////// CvVideoCamera ///////////////////////////////////////////
+///////////////////////////////// CvVideoCamera
+//////////////////////////////////////////////
 
 @class CvVideoCamera;
 
@@ -101,64 +103,63 @@
 
 #ifdef __cplusplus
 // delegate method for processing image frames
-- (void)processImage:(cv::Mat&)image;
+- (void)processImage:(cv::Mat &)image;
 #endif
 
 @end
 
-@interface CvVideoCamera : CvAbstractCamera<AVCaptureVideoDataOutputSampleBufferDelegate>
-{
-    AVCaptureVideoDataOutput *videoDataOutput;
+@interface CvVideoCamera
+    : CvAbstractCamera <AVCaptureVideoDataOutputSampleBufferDelegate> {
+  AVCaptureVideoDataOutput *videoDataOutput;
 
-    dispatch_queue_t videoDataOutputQueue;
-    CALayer *customPreviewLayer;
+  dispatch_queue_t videoDataOutputQueue;
+  CALayer *customPreviewLayer;
 
-    BOOL grayscaleMode;
+  BOOL grayscaleMode;
 
-    BOOL recordVideo;
-    AVAssetWriterInput* recordAssetWriterInput;
-    AVAssetWriterInputPixelBufferAdaptor* recordPixelBufferAdaptor;
-    AVAssetWriter* recordAssetWriter;
+  BOOL recordVideo;
+  AVAssetWriterInput *recordAssetWriterInput;
+  AVAssetWriterInputPixelBufferAdaptor *recordPixelBufferAdaptor;
+  AVAssetWriter *recordAssetWriter;
 
-    CMTime lastSampleTime;
-
+  CMTime lastSampleTime;
 }
 
-@property (nonatomic, assign) id<CvVideoCameraDelegate> delegate;
-@property (nonatomic, assign) BOOL grayscaleMode;
+@property(nonatomic, assign) id<CvVideoCameraDelegate> delegate;
+@property(nonatomic, assign) BOOL grayscaleMode;
 
-@property (nonatomic, assign) BOOL recordVideo;
-@property (nonatomic, retain) AVAssetWriterInput* recordAssetWriterInput;
-@property (nonatomic, retain) AVAssetWriterInputPixelBufferAdaptor* recordPixelBufferAdaptor;
-@property (nonatomic, retain) AVAssetWriter* recordAssetWriter;
+@property(nonatomic, assign) BOOL recordVideo;
+@property(nonatomic, retain) AVAssetWriterInput *recordAssetWriterInput;
+@property(nonatomic, retain)
+    AVAssetWriterInputPixelBufferAdaptor *recordPixelBufferAdaptor;
+@property(nonatomic, retain) AVAssetWriter *recordAssetWriter;
 
-- (void)adjustLayoutToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation;
+- (void)adjustLayoutToInterfaceOrientation:
+    (UIInterfaceOrientation)interfaceOrientation;
 - (void)layoutPreviewLayer;
 - (void)saveVideo;
 - (NSURL *)videoFileURL;
 
-
 @end
 
-///////////////////////////////// CvPhotoCamera ///////////////////////////////////////////
+///////////////////////////////// CvPhotoCamera
+//////////////////////////////////////////////
 
 @class CvPhotoCamera;
 
 @protocol CvPhotoCameraDelegate <NSObject>
 
-- (void)photoCamera:(CvPhotoCamera*)photoCamera capturedImage:(UIImage *)image;
-- (void)photoCameraCancel:(CvPhotoCamera*)photoCamera;
+- (void)photoCamera:(CvPhotoCamera *)photoCamera capturedImage:(UIImage *)image;
+- (void)photoCameraCancel:(CvPhotoCamera *)photoCamera;
 
 @end
 
-@interface CvPhotoCamera : CvAbstractCamera
-{
-    AVCaptureStillImageOutput *stillImageOutput;
+@interface CvPhotoCamera : CvAbstractCamera {
+  AVCaptureStillImageOutput *stillImageOutput;
 }
 
-@property (nonatomic, assign) id<CvPhotoCameraDelegate> delegate;
+@property(nonatomic, assign) id<CvPhotoCameraDelegate> delegate;
 
 - (void)takePicture;
 
 @end
-

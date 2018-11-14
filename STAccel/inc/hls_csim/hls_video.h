@@ -41,32 +41,33 @@
 #endif
 
 /* for safety*/
-#if (defined(ROWS)|| defined(COLS) || defined(SRC_T) || defined(SRC1_T) || defined(SRC2_T) || defined(DST_T))
-#error One or more of the following is defined: ROWS, COLS, SRC_T, SRC1_T, SRC2_T, DST_T. Definition conflicts with their usage as template parameters. 
+#if (defined(ROWS) || defined(COLS) || defined(SRC_T) || defined(SRC1_T) ||    \
+     defined(SRC2_T) || defined(DST_T))
+#error One or more of the following is defined: ROWS, COLS, SRC_T, SRC1_T, SRC2_T, DST_T. Definition conflicts with their usage as template parameters.
 #endif
 
 #include "hls/hls_axi_io.h"
 #include "hls_math.h"
 #include "hls_stream.h"
 
-#include "hls/utils/x_hls_utils.h"
-#include "hls/utils/x_hls_traits.h"
-#include "hls/utils/x_hls_defines.h"
-#include "hls/hls_video_types.h"
-#include "hls/hls_video_mem.h"
 #include "hls/hls_video_core.h"
 #include "hls/hls_video_imgbase.h"
 #include "hls/hls_video_io.h"
+#include "hls/hls_video_mem.h"
+#include "hls/hls_video_types.h"
+#include "hls/utils/x_hls_defines.h"
+#include "hls/utils/x_hls_traits.h"
+#include "hls/utils/x_hls_utils.h"
 
 #include "hls/hls_video_arithm.h"
-#include "hls/hls_video_imgproc.h"
-#include "hls/hls_video_histogram.h"
 #include "hls/hls_video_fast.h"
-#include "hls/hls_video_undistort.h"
-#include "hls/hls_video_hough.h"
-#include "hls/hls_video_harris.h"
 #include "hls/hls_video_haar.h"
+#include "hls/hls_video_harris.h"
+#include "hls/hls_video_histogram.h"
+#include "hls/hls_video_hough.h"
+#include "hls/hls_video_imgproc.h"
 #include "hls/hls_video_stereobm.h"
+#include "hls/hls_video_undistort.h"
 
 #endif
 

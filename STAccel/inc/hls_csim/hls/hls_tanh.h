@@ -35,104 +35,78 @@
 namespace explog_based {
 
 /*
-  Method: 
+  Method:
   tanh(x), odd function
   input: nan           outout: nan
   input: inf           output: 1.0
   input: -inf          output: -1.0
   input: (0,2**-55]    output: x*(x+1)
   input: (2**-55,1.0)  output: -expm1(-2x) / (expm1(-2x)+2)
-  input: [1.0,22)      output: 1.0 - 2.0/(expm1(2x)+2) 
+  input: [1.0,22)      output: 1.0 - 2.0/(expm1(2x)+2)
   input: [22.0,inf)    output: 1.0
 */
-  template<class T>
-  T generic_tanh(T t_in){
+template <class T> T generic_tanh(T t_in) {
 
-    static const int exp_bias = fp_struct<T>::EXP_BIAS;
+  static const int exp_bias = fp_struct<T>::EXP_BIAS;
 
-    fp_struct<T> din(t_in); 
-    T abst_in = hls::fabs(t_in);
-    T resultf;
+  fp_struct<T> din(t_in);
+  T abst_in = hls::fabs(t_in);
+  T resultf;
 
-    if(din.exp==fp_struct<T>::EXP_INFNAN){ 
-	
-      if(din.sig != 0){
-	resultf = ::hls::nan("");
-      }
-      else{
-	resultf = (T)1.0;
-      }
-    }
-    else if((din.exp<exp_bias-55) or
-	    (din.exp==exp_bias-55 and din.sig==0)){
+  if (din.exp == fp_struct<T>::EXP_INFNAN) {
 
-      const T cst1 = 1.0;
-      resultf = abst_in * (cst1 + abst_in);
-    }
-    else if(abst_in < (T)22.0){
-
-      T x;
-      if(din.exp < exp_bias){
-	x = -abst_in - abst_in;
-      }
-      else{
-	x = abst_in + abst_in;
-      }
-
-      T expx = hls::expm1(x);
-
-      if(din.exp < exp_bias){
-
-	const T cst2 = 2.0;
-	resultf = - expx / (expx + cst2);
-      }
-      else{
-	const T cst1 = 1.0;
-	const T cst2 = 2.0;
-	resultf = cst1 - cst2 / (expx + cst2);
-      }
-    }
-    else{
+    if (din.sig != 0) {
+      resultf = ::hls::nan("");
+    } else {
       resultf = (T)1.0;
     }
+  } else if ((din.exp < exp_bias - 55) or
+             (din.exp == exp_bias - 55 and din.sig == 0)) {
 
-    // return 
-    if(din.sign == 0){ // positive 
-      return resultf;
+    const T cst1 = 1.0;
+    resultf = abst_in * (cst1 + abst_in);
+  } else if (abst_in < (T)22.0) {
+
+    T x;
+    if (din.exp < exp_bias) {
+      x = -abst_in - abst_in;
+    } else {
+      x = abst_in + abst_in;
     }
-    else{
-      return -resultf;
-    };
+
+    T expx = hls::expm1(x);
+
+    if (din.exp < exp_bias) {
+
+      const T cst2 = 2.0;
+      resultf = -expx / (expx + cst2);
+    } else {
+      const T cst1 = 1.0;
+      const T cst2 = 2.0;
+      resultf = cst1 - cst2 / (expx + cst2);
+    }
+  } else {
+    resultf = (T)1.0;
   }
 
-  static 
-  double tanh(double t_in)
-  {
-    return generic_tanh(t_in);
+  // return
+  if (din.sign == 0) { // positive
+    return resultf;
+  } else {
+    return -resultf;
   };
-
-  static 
-  float tanh(float t_in)
-  {
-    return generic_tanh(t_in);
-  };
-
-  static half 
-  tanh(half t_in)
-  {
-    return generic_tanh(t_in);
-  };
-
-  static 
-  float tanhf(float t_in){
-    return generic_tanh(t_in);
-  };
-  
-  static 
-  half half_tanh(half t_in){
-    return generic_tanh(t_in);
-  };
-
 }
+
+static double tanh(double t_in) { return generic_tanh(t_in); };
+
+static float tanh(float t_in) { return generic_tanh(t_in); };
+
+static half tanh(half t_in) { return generic_tanh(t_in); };
+
+static float tanhf(float t_in) { return generic_tanh(t_in); };
+
+static half half_tanh(half t_in) { return generic_tanh(t_in); };
+
+} // namespace explog_based
 
 #endif

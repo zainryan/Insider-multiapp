@@ -4,9 +4,8 @@
 #include <insider_kernel.h>
 
 void pcie_read_resp_passer(
-			   ST_Queue<PCIe_Read_Resp> &pcie_read_resp, 
-			   ST_Queue<PCIe_Read_Resp> &before_throttle_pcie_read_resp
-			   ) {
+    ST_Queue<PCIe_Read_Resp> &pcie_read_resp,
+    ST_Queue<PCIe_Read_Resp> &before_throttle_pcie_read_resp) {
   while (1) {
 #pragma HLS pipeline
     PCIe_Read_Resp read_resp;
@@ -15,6 +14,5 @@ void pcie_read_resp_passer(
     }
   }
 }
-
 
 #endif

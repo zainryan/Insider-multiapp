@@ -1,13 +1,13 @@
 #ifndef STACCEL_ITC_H_
 #define STACCEL_ITC_H_
 
-#include "staccel_type.h"
 #include "staccel_fifo.h"
+#include "staccel_type.h"
 
 #ifndef STACCEL_SYN
-#include <thread>
 #include <map>
 #include <mutex>
+#include <thread>
 
 std::map<unsigned long long, unsigned char> pcie_space;
 std::map<unsigned long long, unsigned char> dramA_space;
@@ -99,7 +99,7 @@ inline void send_control_msg(uint32_t tag, uint32_t msg) {
 }
 
 inline uint32_t receive_control_msg(uint32_t tag) {
-  uint32_t msg;  
+  uint32_t msg;
   receive_ctrl_msg_mutex.lock();
   peek_req.write(tag);
   peek_resp.read(msg);
@@ -116,29 +116,29 @@ void host_pcie_simulator() {
     has_pcie_read_req = pcie_read_req.read_nb(read_req);
     if (has_pcie_read_req) {
       PCIe_Read_Resp read_resp;
-      for (int i = 0; i < read_req.num; i ++) {
-	for (int j = 0; j < 64; j ++) {
-	  unsigned long long addr;
-	  addr = read_req.addr + i * 64 + j;
-	  pcie_space_mutex.lock();
-	  read_resp.data(8 * j + 7, 8 * j) = pcie_space[addr];
-	  pcie_space_mutex.unlock();
-	}	
-	read_resp.last = (i == read_req.num - 1);
-	pcie_read_resp.write(read_resp);
+      for (int i = 0; i < read_req.num; i++) {
+        for (int j = 0; j < 64; j++) {
+          unsigned long long addr;
+          addr = read_req.addr + i * 64 + j;
+          pcie_space_mutex.lock();
+          read_resp.data(8 * j + 7, 8 * j) = pcie_space[addr];
+          pcie_space_mutex.unlock();
+        }
+        read_resp.last = (i == read_req.num - 1);
+        pcie_read_resp.write(read_resp);
       }
     }
     has_pcie_write_req = pcie_write_req_apply.read_nb(write_req_apply);
     if (has_pcie_write_req) {
       PCIe_Write_Req_Data write_req_data;
       pcie_space_mutex.lock();
-      for (int i = 0; i < write_req_apply.num; i ++) {
-	pcie_write_req_data.read(write_req_data);
-	for (int j = 0; j < 64; j ++) {
-	  unsigned long long addr;
-	  addr = write_req_apply.addr + i * 64 + j;
-	  pcie_space[addr] = write_req_data.data(8 * j + 7, 8 * j);
-	}
+      for (int i = 0; i < write_req_apply.num; i++) {
+        pcie_write_req_data.read(write_req_data);
+        for (int j = 0; j < 64; j++) {
+          unsigned long long addr;
+          addr = write_req_apply.addr + i * 64 + j;
+          pcie_space[addr] = write_req_data.data(8 * j + 7, 8 * j);
+        }
       }
       pcie_space_mutex.unlock();
     }
@@ -154,32 +154,32 @@ void fpga_dramA_simulator() {
     has_dram_read_req = dramA_read_req.read_nb(read_req);
     if (has_dram_read_req) {
       Dram_Read_Resp read_resp;
-      for (int i = 0; i < read_req.num; i ++) {
-	for (int j = 0; j < 64; j ++) {
-	  unsigned long long addr;
-	  addr = read_req.addr + i * 64 + j;
-	  dramA_space_mutex.lock();
-	  read_resp.data(8 * j + 7, 8 * j) = dramA_space[addr];
-	  dramA_space_mutex.unlock();
-	}	
-	read_resp.last = (i == read_req.num - 1);
-	dramA_read_resp.write(read_resp);
+      for (int i = 0; i < read_req.num; i++) {
+        for (int j = 0; j < 64; j++) {
+          unsigned long long addr;
+          addr = read_req.addr + i * 64 + j;
+          dramA_space_mutex.lock();
+          read_resp.data(8 * j + 7, 8 * j) = dramA_space[addr];
+          dramA_space_mutex.unlock();
+        }
+        read_resp.last = (i == read_req.num - 1);
+        dramA_read_resp.write(read_resp);
       }
     }
     has_dram_write_req = dramA_write_req_apply.read_nb(write_req_apply);
     if (has_dram_write_req) {
       Dram_Write_Req_Data write_req_data;
-      for (int i = 0; i < write_req_apply.num; i ++) {
-	dramA_write_req_data.read(write_req_data);
-	for (int j = 0; j < 64; j ++) {
-	  unsigned long long addr;
-	  addr = write_req_apply.addr + i * 64 + j;
-	  dramA_space_mutex.lock();
-	  dramA_space[addr] = write_req_data.data(8 * j + 7, 8 * j);
-	  dramA_space_mutex.unlock();
-	}
+      for (int i = 0; i < write_req_apply.num; i++) {
+        dramA_write_req_data.read(write_req_data);
+        for (int j = 0; j < 64; j++) {
+          unsigned long long addr;
+          addr = write_req_apply.addr + i * 64 + j;
+          dramA_space_mutex.lock();
+          dramA_space[addr] = write_req_data.data(8 * j + 7, 8 * j);
+          dramA_space_mutex.unlock();
+        }
       }
-    } 
+    }
   }
 }
 
@@ -192,30 +192,30 @@ void fpga_dramB_simulator() {
     has_dram_read_req = dramB_read_req.read_nb(read_req);
     if (has_dram_read_req) {
       Dram_Read_Resp read_resp;
-      for (int i = 0; i < read_req.num; i ++) {
-	for (int j = 0; j < 64; j ++) {
-	  unsigned long long addr;
-	  addr = read_req.addr + i * 64 + j;
-	  dramB_space_mutex.lock();
-	  read_resp.data(8 * j + 7, 8 * j) = dramB_space[addr];
-	  dramB_space_mutex.unlock();
-	}	
-	read_resp.last = (i == read_req.num - 1);
-	dramB_read_resp.write(read_resp);
+      for (int i = 0; i < read_req.num; i++) {
+        for (int j = 0; j < 64; j++) {
+          unsigned long long addr;
+          addr = read_req.addr + i * 64 + j;
+          dramB_space_mutex.lock();
+          read_resp.data(8 * j + 7, 8 * j) = dramB_space[addr];
+          dramB_space_mutex.unlock();
+        }
+        read_resp.last = (i == read_req.num - 1);
+        dramB_read_resp.write(read_resp);
       }
     }
     has_dram_write_req = dramB_write_req_apply.read_nb(write_req_apply);
     if (has_dram_write_req) {
       Dram_Write_Req_Data write_req_data;
-      for (int i = 0; i < write_req_apply.num; i ++) {
-	dramB_write_req_data.read(write_req_data);
-	for (int j = 0; j < 64; j ++) {
-	  unsigned long long addr;
-	  addr = write_req_apply.addr + i * 64 + j;
-	  dramB_space_mutex.lock();
-	  dramB_space[addr] = write_req_data.data(8 * j + 7, 8 * j);
-	  dramB_space_mutex.unlock();
-	}
+      for (int i = 0; i < write_req_apply.num; i++) {
+        dramB_write_req_data.read(write_req_data);
+        for (int j = 0; j < 64; j++) {
+          unsigned long long addr;
+          addr = write_req_apply.addr + i * 64 + j;
+          dramB_space_mutex.lock();
+          dramB_space[addr] = write_req_data.data(8 * j + 7, 8 * j);
+          dramB_space_mutex.unlock();
+        }
       }
     }
   }
@@ -230,32 +230,32 @@ void fpga_dramC_simulator() {
     has_dram_read_req = dramC_read_req.read_nb(read_req);
     if (has_dram_read_req) {
       Dram_Read_Resp read_resp;
-      for (int i = 0; i < read_req.num; i ++) {
-	for (int j = 0; j < 64; j ++) {
-	  unsigned long long addr;
-	  addr = read_req.addr + i * 64 + j;
-	  dramC_space_mutex.lock();
-	  read_resp.data(8 * j + 7, 8 * j) = dramC_space[addr];
-	  dramC_space_mutex.unlock();
-	}	
-	read_resp.last = (i == read_req.num - 1);
-	dramC_read_resp.write(read_resp);
+      for (int i = 0; i < read_req.num; i++) {
+        for (int j = 0; j < 64; j++) {
+          unsigned long long addr;
+          addr = read_req.addr + i * 64 + j;
+          dramC_space_mutex.lock();
+          read_resp.data(8 * j + 7, 8 * j) = dramC_space[addr];
+          dramC_space_mutex.unlock();
+        }
+        read_resp.last = (i == read_req.num - 1);
+        dramC_read_resp.write(read_resp);
       }
     }
     has_dram_write_req = dramC_write_req_apply.read_nb(write_req_apply);
     if (has_dram_write_req) {
       Dram_Write_Req_Data write_req_data;
-      for (int i = 0; i < write_req_apply.num; i ++) {
-	dramC_write_req_data.read(write_req_data);
-	for (int j = 0; j < 64; j ++) {
-	  unsigned long long addr;
-	  addr = write_req_apply.addr + i * 64 + j;
-	  dramC_space_mutex.lock();
-	  dramC_space[addr] = write_req_data.data(8 * j + 7, 8 * j);
-	  dramC_space_mutex.unlock();
-	}
+      for (int i = 0; i < write_req_apply.num; i++) {
+        dramC_write_req_data.read(write_req_data);
+        for (int j = 0; j < 64; j++) {
+          unsigned long long addr;
+          addr = write_req_apply.addr + i * 64 + j;
+          dramC_space_mutex.lock();
+          dramC_space[addr] = write_req_data.data(8 * j + 7, 8 * j);
+          dramC_space_mutex.unlock();
+        }
       }
-    } 
+    }
   }
 }
 
@@ -268,32 +268,32 @@ void fpga_dramD_simulator() {
     has_dram_read_req = dramD_read_req.read_nb(read_req);
     if (has_dram_read_req) {
       Dram_Read_Resp read_resp;
-      for (int i = 0; i < read_req.num; i ++) {
-	for (int j = 0; j < 64; j ++) {
-	  unsigned long long addr;
-	  addr = read_req.addr + i * 64 + j;
-	  dramD_space_mutex.lock();
-	  read_resp.data(8 * j + 7, 8 * j) = dramD_space[addr];
-	  dramD_space_mutex.unlock();
-	}	
-	read_resp.last = (i == read_req.num - 1);
-	dramD_read_resp.write(read_resp);
+      for (int i = 0; i < read_req.num; i++) {
+        for (int j = 0; j < 64; j++) {
+          unsigned long long addr;
+          addr = read_req.addr + i * 64 + j;
+          dramD_space_mutex.lock();
+          read_resp.data(8 * j + 7, 8 * j) = dramD_space[addr];
+          dramD_space_mutex.unlock();
+        }
+        read_resp.last = (i == read_req.num - 1);
+        dramD_read_resp.write(read_resp);
       }
     }
     has_dram_write_req = dramD_write_req_apply.read_nb(write_req_apply);
     if (has_dram_write_req) {
       Dram_Write_Req_Data write_req_data;
-      for (int i = 0; i < write_req_apply.num; i ++) {
-	dramD_write_req_data.read(write_req_data);
-	for (int j = 0; j < 64; j ++) {
-	  unsigned long long addr;
-	  addr = write_req_apply.addr + i * 64 + j;
-	  dramD_space_mutex.lock();
-	  dramD_space[addr] = write_req_data.data(8 * j + 7, 8 * j);
-	  dramD_space_mutex.unlock();
-	}
+      for (int i = 0; i < write_req_apply.num; i++) {
+        dramD_write_req_data.read(write_req_data);
+        for (int j = 0; j < 64; j++) {
+          unsigned long long addr;
+          addr = write_req_apply.addr + i * 64 + j;
+          dramD_space_mutex.lock();
+          dramD_space[addr] = write_req_data.data(8 * j + 7, 8 * j);
+          dramD_space_mutex.unlock();
+        }
       }
-    } 
+    }
   }
 }
 

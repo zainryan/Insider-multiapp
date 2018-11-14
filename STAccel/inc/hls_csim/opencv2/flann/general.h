@@ -32,22 +32,18 @@
 #define OPENCV_FLANN_GENERAL_H_
 
 #include "defines.h"
-#include <stdexcept>
 #include <cassert>
+#include <stdexcept>
 
-namespace cvflann
-{
+namespace cvflann {
 
-class FLANNException : public std::runtime_error
-{
+class FLANNException : public std::runtime_error {
 public:
-    FLANNException(const char* message) : std::runtime_error(message) { }
+  FLANNException(const char *message) : std::runtime_error(message) {}
 
-    FLANNException(const std::string& message) : std::runtime_error(message) { }
+  FLANNException(const std::string &message) : std::runtime_error(message) {}
 };
 
-}
+} // namespace cvflann
 
-
-#endif  /* OPENCV_FLANN_GENERAL_H_ */
-
+#endif /* OPENCV_FLANN_GENERAL_H_ */

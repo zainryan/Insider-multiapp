@@ -13,10 +13,9 @@
 // implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 
 // Vivado does not support svGetScopeFromName
 #ifdef INCLUDE_DPI_CALLS

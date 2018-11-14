@@ -6,7 +6,7 @@
 #define COSIM_DRAMC_ADDR_OFFSET (12LL << 32)
 #define COSIM_DRAMD_ADDR_OFFSET (16LL << 32)
 
-#include <staccel_kernel.h>
 #include <insider_common.h>
+#include <staccel_kernel.h>
 
 #endif

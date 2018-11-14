@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
 #include <hal/fpga_common.h>
+#include <stddef.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,8 +32,8 @@ extern "C" {
  *  -FPGA_SLOT_MAX is driven by the EC2 FPGA system design and instance type.
  *  -FPGA_BARS_MAX is driven by the FPGA Shell release.
  */
-#if ! defined(FPGA_PCI_BARS_MAX)
-#define FPGA_PCI_BARS_MAX	(FPGA_SLOT_MAX * FPGA_PF_MAX * FPGA_BAR_PER_PF_MAX)
+#if !defined(FPGA_PCI_BARS_MAX)
+#define FPGA_PCI_BARS_MAX (FPGA_SLOT_MAX * FPGA_PF_MAX * FPGA_BAR_PER_PF_MAX)
 #endif
 
 /*
@@ -78,14 +78,14 @@ int fpga_pci_init(void);
  * @returns 0 on success, non-zero on error
  */
 int fpga_pci_attach(int slot_id, int pf_id, int bar_id, uint32_t flags,
-    pci_bar_handle_t *handle);
+                    pci_bar_handle_t *handle);
 
 /**
  * Flags used to specify options for fpga_pci_attach.
  */
 enum {
-    BURST_CAPABLE = 0x1,
-    FPGA_ATTACH_RESERVED = 0xfffffffe,
+  BURST_CAPABLE = 0x1,
+  FPGA_ATTACH_RESERVED = 0xfffffffe,
 };
 
 /**
@@ -128,7 +128,7 @@ int fpga_pci_poke64(pci_bar_handle_t handle, uint64_t offset, uint64_t value);
  * @returns 0 on success, non-zero on error
  */
 int fpga_pci_write_burst(pci_bar_handle_t handle, uint64_t offset,
-    uint32_t* datap, uint64_t dword_len);
+                         uint32_t *datap, uint64_t dword_len);
 
 /**
  * Read a value from a register.
@@ -181,7 +181,7 @@ int fpga_pci_get_all_slot_specs(struct fpga_slot_spec spec_array[], int size);
  * @returns 0 on success, non-zero on error
  */
 int fpga_pci_get_resource_map(int slot_id, int pf_id,
-    struct fpga_pci_resource_map *map);
+                              struct fpga_pci_resource_map *map);
 
 /**
  * Rescan the slot application physical functions.
@@ -206,7 +206,7 @@ int fpga_pci_rescan_slot_app_pfs(int slot_id);
  * @return 0 on success, non-zero on error (bounds errors in particular)
  */
 int fpga_pci_get_address(pci_bar_handle_t handle, uint64_t offset,
-	uint64_t dword_len, void **ptr);
+                         uint64_t dword_len, void **ptr);
 
 /**
  * Initialze a segment of memory to an initial value. This has the best
@@ -220,12 +220,12 @@ int fpga_pci_get_address(pci_bar_handle_t handle, uint64_t offset,
  * @returns 0 on success, non-zero on error
  */
 int fpga_pci_memset(pci_bar_handle_t handle, uint64_t offset, uint32_t value,
-	uint64_t dword_len);
+                    uint64_t dword_len);
 
 struct fpga_pci_bar {
-	bool	 allocated;
-	void	*mem_base;
-	size_t	 mem_size;
+  bool allocated;
+  void *mem_base;
+  size_t mem_size;
 };
 
 struct fpga_pci_bar *fpga_pci_bar_get(pci_bar_handle_t handle);

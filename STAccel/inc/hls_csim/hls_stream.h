@@ -43,7 +43,7 @@
 #-  regulations governing limitations on product liability.
 #-
 #-  THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
-#-  PART OF THIS FILE AT ALL TIMES. 
+#-  PART OF THIS FILE AT ALL TIMES.
 #- ************************************************************************
 
 
@@ -76,15 +76,15 @@
 //////////////////////////////////////////////
 // C level simulation models for hls::stream
 //////////////////////////////////////////////
-#include <queue>
 #include <iostream>
-#include <typeinfo>
-#include <string>
+#include <queue>
 #include <sstream>
+#include <string>
+#include <typeinfo>
 
 #ifdef HLS_STREAM_THREAD_SAFE
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 #endif
 
 #ifndef _MSC_VER
@@ -94,171 +94,152 @@
 
 namespace hls {
 
-template<typename __STREAM_T__>
-class stream
-{
-  protected:
-    std::string _name;
-    std::deque<__STREAM_T__> _data; // container for the elements
+template <typename __STREAM_T__> class stream {
+protected:
+  std::string _name;
+  std::deque<__STREAM_T__> _data; // container for the elements
 #ifdef HLS_STREAM_THREAD_SAFE
-    std::mutex _mutex;
-    std::condition_variable _condition_var;
-#endif    
-
-  public:
-    /// Constructors
-    // Keep consistent with the synthesis model's constructors
-    stream() {
-        static unsigned _counter = 1;
-        std::stringstream ss;
-#ifndef _MSC_VER
-        char* _demangle_name = abi::__cxa_demangle(typeid(*this).name(), 0, 0, 0);
-        if (_demangle_name) {
-            _name = _demangle_name;
-            free(_demangle_name);
-        }
-        else {
-            _name = "hls_stream";
-        }
-#else
-        _name = typeid(*this).name();
+  std::mutex _mutex;
+  std::condition_variable _condition_var;
 #endif
 
-        ss << _counter++;
-        _name += "." + ss.str();
+public:
+  /// Constructors
+  // Keep consistent with the synthesis model's constructors
+  stream() {
+    static unsigned _counter = 1;
+    std::stringstream ss;
+#ifndef _MSC_VER
+    char *_demangle_name = abi::__cxa_demangle(typeid(*this).name(), 0, 0, 0);
+    if (_demangle_name) {
+      _name = _demangle_name;
+      free(_demangle_name);
+    } else {
+      _name = "hls_stream";
     }
+#else
+    _name = typeid(*this).name();
+#endif
 
-    stream(const std::string name) {
+    ss << _counter++;
+    _name += "." + ss.str();
+  }
+
+  stream(const std::string name) {
     // default constructor,
     // capacity set to predefined maximum
-        _name = name;
-    }
+    _name = name;
+  }
 
   /// Make copy constructor and assignment operator private
-  private:
-    stream(const stream< __STREAM_T__ >& chn):
-        _name(chn._name), _data(chn._data) {
+private:
+  stream(const stream<__STREAM_T__> &chn)
+      : _name(chn._name), _data(chn._data) {}
+
+  stream &operator=(const stream<__STREAM_T__> &chn) {
+    _name = chn._name;
+    _data = chn._data;
+    return *this;
+  }
+
+public:
+  /// Overload >> and << operators to implement read() and write()
+  void operator>>(__STREAM_T__ &rdata) { read(rdata); }
+
+  void operator<<(const __STREAM_T__ &wdata) { write(wdata); }
+
+public:
+  /// Destructor
+  /// Check status of the queue
+  virtual ~stream() {
+    if (!_data.empty()) {
+      std::cout << "WARNING: Hls::stream '" << _name
+                << "' contains leftover data,"
+                << " which may result in RTL simulation hanging." << std::endl;
     }
+  }
 
-    stream& operator = (const stream< __STREAM_T__ >& chn) {
-        _name = chn._name;
-        _data = chn._data;
-        return *this;
-    }
-
-  public:
-    /// Overload >> and << operators to implement read() and write()
-    void operator >> (__STREAM_T__& rdata) {
-        read(rdata);
-    }
-
-    void operator << (const __STREAM_T__& wdata) {
-        write(wdata);
-    }
-
-
-  public:
-    /// Destructor
-    /// Check status of the queue
-    virtual ~stream() {
-        if (!_data.empty())
-        {
-            std::cout << "WARNING: Hls::stream '" 
-                      << _name 
-                      << "' contains leftover data,"
-                      << " which may result in RTL simulation hanging."
-                      << std::endl;
-        }
-    }
-
-    /// Status of the queue
-    bool empty() {
+  /// Status of the queue
+  bool empty() {
 #ifdef HLS_STREAM_THREAD_SAFE
-        std::lock_guard<std::mutex> lg(_mutex);
+    std::lock_guard<std::mutex> lg(_mutex);
 #endif
-        return _data.empty();
-    }    
+    return _data.empty();
+  }
 
-    bool full() const { return false; }
+  bool full() const { return false; }
 
-    /// Blocking read
-    void read(__STREAM_T__& head) {
-        head = read();
-    }
+  /// Blocking read
+  void read(__STREAM_T__ &head) { head = read(); }
 
 #ifdef HLS_STREAM_THREAD_SAFE
-    __STREAM_T__ read() {
-        std::unique_lock<std::mutex> ul(_mutex);
-        while (_data.empty()) {
-            _condition_var.wait(ul);
-        }
-
-        __STREAM_T__ elem;
-        elem = _data.front();
-        _data.pop_front();
-        return elem;
+  __STREAM_T__ read() {
+    std::unique_lock<std::mutex> ul(_mutex);
+    while (_data.empty()) {
+      _condition_var.wait(ul);
     }
+
+    __STREAM_T__ elem;
+    elem = _data.front();
+    _data.pop_front();
+    return elem;
+  }
 #else
-    __STREAM_T__ read() {
-        __STREAM_T__ elem;
-        if (_data.empty()) {
-            std::cout << "WARNING: Hls::stream '"
-                      << _name 
-                      << "' is read while empty,"
-                      << " which may result in RTL simulation hanging."
-                      << std::endl;
-            elem = __STREAM_T__();
-        } else {
-            elem = _data.front();
-            _data.pop_front();
-        }
-        return elem;
+  __STREAM_T__ read() {
+    __STREAM_T__ elem;
+    if (_data.empty()) {
+      std::cout << "WARNING: Hls::stream '" << _name << "' is read while empty,"
+                << " which may result in RTL simulation hanging." << std::endl;
+      elem = __STREAM_T__();
+    } else {
+      elem = _data.front();
+      _data.pop_front();
     }
+    return elem;
+  }
 #endif
 
-    /// Blocking write
-    void write(const __STREAM_T__& tail) { 
+  /// Blocking write
+  void write(const __STREAM_T__ &tail) {
 #ifdef HLS_STREAM_THREAD_SAFE
-        std::unique_lock<std::mutex> ul(_mutex);
+    std::unique_lock<std::mutex> ul(_mutex);
 #endif
-        _data.push_back(tail);
+    _data.push_back(tail);
 #ifdef HLS_STREAM_THREAD_SAFE
-        _condition_var.notify_one();
+    _condition_var.notify_one();
 #endif
-    }
+  }
 
-    /// Nonblocking read
-    bool read_nb(__STREAM_T__& head) {
+  /// Nonblocking read
+  bool read_nb(__STREAM_T__ &head) {
 #ifdef HLS_STREAM_THREAD_SAFE
-        std::lock_guard<std::mutex> lg(_mutex);
-#endif    
-        bool is_empty = _data.empty();
-        if (is_empty) {
-            head = __STREAM_T__();
-        } else {
-            __STREAM_T__ elem(_data.front());
-            _data.pop_front();
-            head = elem;
-        }
-        return !is_empty;
+    std::lock_guard<std::mutex> lg(_mutex);
+#endif
+    bool is_empty = _data.empty();
+    if (is_empty) {
+      head = __STREAM_T__();
+    } else {
+      __STREAM_T__ elem(_data.front());
+      _data.pop_front();
+      head = elem;
     }
+    return !is_empty;
+  }
 
-    /// Nonblocking write
-    bool write_nb(const __STREAM_T__& tail) {
-        bool is_full = full();
-        write(tail);
-        return !is_full;
-    }
+  /// Nonblocking write
+  bool write_nb(const __STREAM_T__ &tail) {
+    bool is_full = full();
+    write(tail);
+    return !is_full;
+  }
 
-    /// Fifo size
-    size_t size() {
-        return _data.size();
-    }
+  /// Fifo size
+  size_t size() { return _data.size(); }
 };
 
 } // namespace hls
 
 #endif // __cplusplus
-#endif  // X_HLS_STREAM_SIM_H
+#endif // X_HLS_STREAM_SIM_H
 
 // 67d7842dbbe25473c3c32b93c0da8047785f30d78e8a024de1b57352245f9689

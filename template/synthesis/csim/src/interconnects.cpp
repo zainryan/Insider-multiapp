@@ -1,5 +1,5 @@
-#include <iostream>
 #include <insider_itc.h>
+#include <iostream>
 
 #include "app_pt_0.cpp"
 #include "app_pt_1.cpp"
@@ -443,17 +443,15 @@ void gen_data() {
 }
 
 void sub_simulation_function(int app_id) {
-  unsigned char* ptr_app_input_data;
+  unsigned char *ptr_app_input_data;
   int size_app_input_data;
   if (app_id == 0) {
     ptr_app_input_data = app_input_data_0;
     size_app_input_data = sizeof(app_input_data_0);
-  }
-  else if (app_id == 1) {
+  } else if (app_id == 1) {
     ptr_app_input_data = app_input_data_1;
     size_app_input_data = sizeof(app_input_data_1);
-  }
-  else if (app_id == 2) {
+  } else if (app_id == 2) {
     ptr_app_input_data = app_input_data_2;
     size_app_input_data = sizeof(app_input_data_2);
   }
@@ -470,11 +468,10 @@ void sub_simulation_function(int app_id) {
     while (read_bytes != READ_BUF_SIZE) {
       int tmp = iread(fd, buf, READ_BUF_SIZE - read_bytes);
       if (!tmp) {
-	fin_file = true;
-	break;
-      }
-      else {
-	read_bytes += tmp;
+        fin_file = true;
+        break;
+      } else {
+        read_bytes += tmp;
       }
     }
     total_read_bytes += read_bytes;
@@ -486,17 +483,17 @@ void sub_simulation_function(int app_id) {
   }
   if (total_read_bytes != expected_total_read_bytes) {
     cout << "Failed." << endl;
-    cout << "app_id = " << app_id
-	 << ", total_read_bytes = " << total_read_bytes
-	 << ", expected_total_read_bytes = " << expected_total_read_bytes << endl;
+    cout << "app_id = " << app_id << ", total_read_bytes = " << total_read_bytes
+         << ", expected_total_read_bytes = " << expected_total_read_bytes
+         << endl;
     exit(-1);
   }
   for (int i = 0; i < total_read_bytes; i++) {
-    int expected_data = ptr_app_input_data[size_app_input_data - total_read_bytes + i];
+    int expected_data =
+        ptr_app_input_data[size_app_input_data - total_read_bytes + i];
     if (buf[i] != expected_data) {
-      cout << "idx = " << i
-	   << "real_data = " << (int)buf[i]
-	   << "expected_data = " << expected_data << endl;
+      cout << "idx = " << i << "real_data = " << (int)buf[i]
+           << "expected_data = " << expected_data << endl;
       exit(-1);
     }
   }

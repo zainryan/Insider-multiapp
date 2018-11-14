@@ -59,14 +59,11 @@ static void dram_write(unsigned long long addr, unsigned char data) {
 
   if (dram_id == 0) {
     host_memory_putc(dram_idx + COSIM_DRAMA_ADDR_OFFSET, data);
-  }
-  else if (dram_id == 1) {
+  } else if (dram_id == 1) {
     host_memory_putc(dram_idx + COSIM_DRAMB_ADDR_OFFSET, data);
-  }
-  else if (dram_id == 2) {
+  } else if (dram_id == 2) {
     host_memory_putc(dram_idx + COSIM_DRAMC_ADDR_OFFSET, data);
-  }
-  else if (dram_id == 3) {
+  } else if (dram_id == 3) {
     host_memory_putc(dram_idx + COSIM_DRAMD_ADDR_OFFSET, data);
   }
 }
@@ -75,23 +72,20 @@ static void init_app_buf_addrs(int app_id) {
   int app_buf_addrs_tag;
   if (app_id == 0) {
     app_buf_addrs_tag = APP_BUF_ADDRS_0_TAG;
-  }
-  else if (app_id == 1) {
+  } else if (app_id == 1) {
     app_buf_addrs_tag = APP_BUF_ADDRS_1_TAG;
-  }
-  else if (app_id == 2) {
+  } else if (app_id == 2) {
     app_buf_addrs_tag = APP_BUF_ADDRS_2_TAG;
-  }
-  else {
+  } else {
     return;
   }
   int i;
-  for (i = 0; i < ALLOCATED_BUF_NUM; i ++) {
+  for (i = 0; i < ALLOCATED_BUF_NUM; i++) {
     if (i == 0) {
       app_buf_phy_addrs[app_id][i] = (unsigned long long)app_id << 32;
-    }
-    else {
-      app_buf_phy_addrs[app_id][i] = app_buf_phy_addrs[app_id][i - 1] + (1 << (APP_BUF_SIZE_LOG2 + 1));
+    } else {
+      app_buf_phy_addrs[app_id][i] =
+          app_buf_phy_addrs[app_id][i - 1] + (1 << (APP_BUF_SIZE_LOG2 + 1));
     }
     cl_poke(TAG(app_buf_addrs_tag), app_buf_phy_addrs[app_id][i] >> 32);
     cl_poke(TAG(app_buf_addrs_tag), app_buf_phy_addrs[app_id][i] & 0xFFFFFFFF);
@@ -100,10 +94,10 @@ static void init_app_buf_addrs(int app_id) {
 
 static void init() {
   int i;
-  for (i = 0; i < APP_NUM; i ++) {
+  for (i = 0; i < APP_NUM; i++) {
     first[i] = 1;
-    app_bufs_ptr[i] = is_eop[i] = buf_idx[i] = 
-      buf_len[i] = file_finish_reading[i] = 0;
+    app_bufs_ptr[i] = is_eop[i] = buf_idx[i] = buf_len[i] =
+        file_finish_reading[i] = 0;
     init_app_buf_addrs(i);
   }
 }
@@ -120,14 +114,11 @@ int iopen(int app_id, const char *pathname, int flags) {
   int virt_file_fd;
   if (app_id == 0) {
     virt_file_fd = VIRT_FILE_FD_0;
-  }
-  else if (app_id == 1) {
+  } else if (app_id == 1) {
     virt_file_fd = VIRT_FILE_FD_1;
-  }
-  else if (app_id == 2) {
+  } else if (app_id == 2) {
     virt_file_fd = VIRT_FILE_FD_2;
-  }
-  else {
+  } else {
     return -1;
   }
   return virt_file_fd;
@@ -138,20 +129,19 @@ static void update_metadata(int app_id) {
   unsigned long long metadata_addr, flag_addr;
   volatile unsigned char *metadata_ptr;
   do {
-    metadata_addr = app_buf_phy_addrs[app_id][app_bufs_ptr[app_id]] + BUF_METADATA_IDX;
-    flag_addr = app_buf_phy_addrs[app_id][app_bufs_ptr[app_id]] + BUF_METADATA_IDX + sizeof(unsigned int);
-    flag =
-      (host_memory_getc(flag_addr + 3) << 24) |
-      (host_memory_getc(flag_addr + 2) << 16) |
-      (host_memory_getc(flag_addr + 1) << 8)  |
-      (host_memory_getc(flag_addr + 0) << 0);
-    metadata =
-      (host_memory_getc(metadata_addr + 3) << 24) |
-      (host_memory_getc(metadata_addr + 2) << 16) |
-      (host_memory_getc(metadata_addr + 1) << 8)  |
-      (host_memory_getc(metadata_addr + 0) << 0);
-  }
-  while (!(flag));
+    metadata_addr =
+        app_buf_phy_addrs[app_id][app_bufs_ptr[app_id]] + BUF_METADATA_IDX;
+    flag_addr = app_buf_phy_addrs[app_id][app_bufs_ptr[app_id]] +
+                BUF_METADATA_IDX + sizeof(unsigned int);
+    flag = (host_memory_getc(flag_addr + 3) << 24) |
+           (host_memory_getc(flag_addr + 2) << 16) |
+           (host_memory_getc(flag_addr + 1) << 8) |
+           (host_memory_getc(flag_addr + 0) << 0);
+    metadata = (host_memory_getc(metadata_addr + 3) << 24) |
+               (host_memory_getc(metadata_addr + 2) << 16) |
+               (host_memory_getc(metadata_addr + 1) << 8) |
+               (host_memory_getc(metadata_addr + 0) << 0);
+  } while (!(flag));
   host_memory_putc(flag_addr + 0, 0);
   host_memory_putc(flag_addr + 1, 0);
   host_memory_putc(flag_addr + 2, 0);
@@ -160,16 +150,17 @@ static void update_metadata(int app_id) {
   is_eop[app_id] = metadata & 0x1;
 }
 
-static void kernel_user_memcpy(void *user_buf, unsigned long long kernel_buf_addr, size_t count) {
+static void kernel_user_memcpy(void *user_buf,
+                               unsigned long long kernel_buf_addr,
+                               size_t count) {
   size_t i;
-  for (i = 0; i < count; i ++) {
+  for (i = 0; i < count; i++) {
     ((unsigned char *)user_buf)[i] = host_memory_getc(kernel_buf_addr + i);
   }
 }
 
 static void reset(int app_id) {
-  app_bufs_ptr[app_id] = is_eop[app_id] = buf_idx[app_id] = 
-    buf_len[app_id] = 0;
+  app_bufs_ptr[app_id] = is_eop[app_id] = buf_idx[app_id] = buf_len[app_id] = 0;
   first[app_id] = 1;
 }
 
@@ -179,27 +170,24 @@ ssize_t iread(int fd, void *buf, size_t count) {
   if (fd == VIRT_FILE_FD_0) {
     app_id = 0;
     app_free_buf_tag = APP_FREE_BUF_0_TAG;
-  }
-  else if (fd == VIRT_FILE_FD_1) {
+  } else if (fd == VIRT_FILE_FD_1) {
     app_id = 1;
     app_free_buf_tag = APP_FREE_BUF_1_TAG;
-  }
-  else if (fd == VIRT_FILE_FD_2) {
+  } else if (fd == VIRT_FILE_FD_2) {
     app_id = 2;
     app_free_buf_tag = APP_FREE_BUF_2_TAG;
-  }
-  else {
+  } else {
     return -1;
-  } 
-  
+  }
+
   if (file_finish_reading[app_id]) {
     return 0;
-  }
-  else if (first[app_id]) {
+  } else if (first[app_id]) {
     update_metadata(app_id);
     first[app_id] = 0;
   }
-  unsigned long long kbuf_addr = app_buf_phy_addrs[app_id][app_bufs_ptr[app_id]];
+  unsigned long long kbuf_addr =
+      app_buf_phy_addrs[app_id][app_bufs_ptr[app_id]];
   ssize_t read_size;
   if (count >= buf_len[app_id] - buf_idx[app_id]) {
     read_size = buf_len[app_id] - buf_idx[app_id];
@@ -207,16 +195,15 @@ ssize_t iread(int fd, void *buf, size_t count) {
       kernel_user_memcpy(buf, kbuf_addr + buf_idx[app_id], read_size);
       file_finish_reading[app_id] = 1;
       reset(app_id);
-    }
-    else {
+    } else {
       kernel_user_memcpy(buf, kbuf_addr + buf_idx[app_id], read_size);
       cl_poke(TAG(app_free_buf_tag), 0);
-      app_bufs_ptr[app_id] = (app_bufs_ptr[app_id] + 1) & (ALLOCATED_BUF_NUM - 1);
+      app_bufs_ptr[app_id] =
+          (app_bufs_ptr[app_id] + 1) & (ALLOCATED_BUF_NUM - 1);
       buf_idx[app_id] = 0;
       update_metadata(app_id);
     }
-  }
-  else {
+  } else {
     read_size = count;
     kernel_user_memcpy(buf, kbuf_addr + buf_idx[app_id], read_size);
     buf_idx[app_id] += read_size;
@@ -228,42 +215,37 @@ int iclose(int fd) {
   int reset_tag;
   if (fd == VIRT_FILE_FD_0) {
     reset_tag = APP_RESET_0_TAG;
-  }
-  else if (fd == VIRT_FILE_FD_1) {
+  } else if (fd == VIRT_FILE_FD_1) {
     reset_tag = APP_RESET_1_TAG;
-  }
-  else if (fd == VIRT_FILE_FD_2) {
+  } else if (fd == VIRT_FILE_FD_2) {
     reset_tag = APP_RESET_2_TAG;
-  }
-  else {
+  } else {
     return -1;
   }
   cl_poke(TAG(reset_tag), 0);
   return 0;
 }
- 
+
 void set_physical_file(int app_id, unsigned char *buf, size_t count) {
   if (count > MAX_PHYSICAL_FILE_SIZE) {
     puts("In set_physical_file(), count is larger than "
-	 "MAX_PHYSICAL_FILE_SIZE.");
+         "MAX_PHYSICAL_FILE_SIZE.");
     return;
   }
   int app_file_info_tag;
   if (app_id == 0) {
     app_file_info_tag = APP_FILE_INFO_0_TAG;
-  }
-  else if (app_id == 1) {
+  } else if (app_id == 1) {
     app_file_info_tag = APP_FILE_INFO_1_TAG;
-  }
-  else if (app_id == 2) {
+  } else if (app_id == 2) {
     app_file_info_tag = APP_FILE_INFO_2_TAG;
-  }
-  else {
+  } else {
     return;
   }
-  unsigned long long base_addr = (unsigned long long)app_id * MAX_PHYSICAL_FILE_SIZE;
+  unsigned long long base_addr =
+      (unsigned long long)app_id * MAX_PHYSICAL_FILE_SIZE;
   size_t i;
-  for (i = 0; i < count; i ++) {
+  for (i = 0; i < count; i++) {
     dram_write(i + base_addr, buf[i]);
   }
   cl_poke(TAG(app_file_info_tag), 1);
@@ -279,14 +261,11 @@ void send_input_param(int app_id, unsigned int data) {
   int app_input_param_tag;
   if (app_id == 0) {
     app_input_param_tag = APP_INPUT_PARAM_0_TAG;
-  }
-  else if (app_id == 1) {
+  } else if (app_id == 1) {
     app_input_param_tag = APP_INPUT_PARAM_1_TAG;
-  }
-  else if (app_id == 2) {
+  } else if (app_id == 2) {
     app_input_param_tag = APP_INPUT_PARAM_2_TAG;
-  }
-  else {
+  } else {
     return;
   }
   cl_poke(TAG(app_input_param_tag), data);

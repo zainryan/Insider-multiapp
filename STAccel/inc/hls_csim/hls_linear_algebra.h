@@ -40,12 +40,12 @@
 #error C++ is required to include this header file
 #endif
 
-#include "hls/linear_algebra/hls_matrix_multiply.h"
-#include "hls/linear_algebra/hls_cholesky.h"
-#include "hls/linear_algebra/hls_qrf.h"
 #include "hls/linear_algebra/hls_back_substitute.h"
-#include "hls/linear_algebra/hls_qr_inverse.h"
+#include "hls/linear_algebra/hls_cholesky.h"
 #include "hls/linear_algebra/hls_cholesky_inverse.h"
+#include "hls/linear_algebra/hls_matrix_multiply.h"
+#include "hls/linear_algebra/hls_qr_inverse.h"
+#include "hls/linear_algebra/hls_qrf.h"
 #include "hls/linear_algebra/hls_svd.h"
 
 #endif

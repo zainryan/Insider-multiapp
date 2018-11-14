@@ -37,22 +37,22 @@
 #include "hls/linear_algebra/utils/x_hls_complex.h"
 #include "hls/utils/x_hls_utils.h"
 
-template <typename T> double norm1_abs(T x)  {
-  const double ONE  = 1.0;
+template <typename T> double norm1_abs(T x) {
+  const double ONE = 1.0;
   const double ZERO = 0.0;
   double t, re, im;
 
   re = abs((double)hls::x_real(x));
   im = abs((double)hls::x_imag(x));
   if (re > im) {
-    t = im/re;
-    return re*sqrt(ONE+t*t);
+    t = im / re;
+    return re * sqrt(ONE + t * t);
   } else {
     if (im == ZERO) {
       return ZERO;
     }
-    t = re/im;
-    return im*sqrt(ONE+t*t);
+    t = re / im;
+    return im * sqrt(ONE + t * t);
   }
 }
 
@@ -68,29 +68,25 @@ template <int ROWS, int COLS, typename T> double norm1(T in[ROWS][COLS]) {
   }
 
   // Sum column absolute values
-  for (int r=0; r < ROWS; r++) {
-    for (int c=0; c < COLS; c++) {
+  for (int r = 0; r < ROWS; r++) {
+    for (int c = 0; c < COLS; c++) {
       norm_cols[c] += norm1_abs(in[r][c]);
     }
   }
 
   // Find largest column sum
-  for (int c=0; c < COLS; c++) {
+  for (int c = 0; c < COLS; c++) {
     if (norm_cols[c] > norm) {
       norm = norm_cols[c];
     }
   }
 
   return norm;
-
 }
 
-template<int ROWS, int COLS, class T_IN, class T_OUT>
-int msub(
-  const T_IN A[ROWS][COLS],
-  const T_IN B[ROWS][COLS],
-  T_OUT C [ROWS][COLS] )
-{
+template <int ROWS, int COLS, class T_IN, class T_OUT>
+int msub(const T_IN A[ROWS][COLS], const T_IN B[ROWS][COLS],
+         T_OUT C[ROWS][COLS]) {
   T_IN tmp;
   for (int row = 0; row < ROWS; row++) {
     for (int col = 0; col < COLS; col++) {
@@ -102,30 +98,27 @@ int msub(
 };
 
 // Helper struct to determine base type
-template <typename T> struct tb_traits {
-  typedef T BASE_T;
-};
-template <typename T> struct tb_traits<hls::x_complex<T> > {
-  typedef T BASE_T;
-};
+template <typename T> struct tb_traits { typedef T BASE_T; };
+template <typename T> struct tb_traits<hls::x_complex<T>> { typedef T BASE_T; };
 
 // Generate a difference ratio between a matrix and a reference matrix
 // - LAPACK error measurement method
 // - Scaled by matrix size and data type precision.
-template <int ROWS, int COLS, typename T> double difference_ratio(T in[ROWS][COLS], T ref[ROWS][COLS]) {
+template <int ROWS, int COLS, typename T>
+double difference_ratio(T in[ROWS][COLS], T ref[ROWS][COLS]) {
   const int MAX_DIM = (ROWS > COLS ? ROWS : COLS);
   typedef typename tb_traits<T>::BASE_T IN_BASE_T;
   const IN_BASE_T eps_base_t = hls::numeric_limits<IN_BASE_T>::epsilon();
-  const double eps  = (double)eps_base_t;
+  const double eps = (double)eps_base_t;
 
   T diff[ROWS][COLS];
   double diff_norm, ref_norm;
 
   // Calculate difference between matrix and reference
-  msub<ROWS,COLS>(in,ref,diff);
+  msub<ROWS, COLS>(in, ref, diff);
   // Calculate norm-1s of the difference and the reference
-  diff_norm = norm1<ROWS,COLS>(diff);
-  ref_norm  = norm1<ROWS,COLS>(ref);
+  diff_norm = norm1<ROWS, COLS>(diff);
+  ref_norm = norm1<ROWS, COLS>(ref);
   // Return difference ratio
   return (diff_norm / (ref_norm * MAX_DIM * eps));
 };

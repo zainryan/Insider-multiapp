@@ -26,7 +26,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************/
 
-
 #ifndef OPENCV_FLANN_CONFIG_H_
 #define OPENCV_FLANN_CONFIG_H_
 
@@ -36,4 +35,3 @@
 #define FLANN_VERSION_ "1.6.10"
 
 #endif /* OPENCV_FLANN_CONFIG_H_ */
-

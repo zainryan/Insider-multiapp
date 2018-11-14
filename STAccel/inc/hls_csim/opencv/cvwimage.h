@@ -37,11 +37,9 @@
 // or tort (including negligence or otherwise) arising in any way out of
 // the use of this software, even if advised of the possibility of such damage.
 
-
 #ifndef __OPENCV_OLD_WIMAGE_HPP__
 #define __OPENCV_OLD_WIMAGE_HPP__
 
 #include "opencv2/core/wimage.hpp"
 
 #endif
-

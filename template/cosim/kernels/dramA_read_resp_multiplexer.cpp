@@ -4,11 +4,10 @@
 #include <insider_kernel.h>
 
 void dramA_read_resp_multiplexer(
-				 ST_Queue<Dram_Read_Resp> &dramA_read_resp,
-				 ST_Queue<Dram_Read_Resp> &host_dramA_read_resp,
-				 ST_Queue<Dram_Read_Resp> &device_dramA_read_resp,
-				 ST_Queue<bool> &dramA_read_context
-				 ) {
+    ST_Queue<Dram_Read_Resp> &dramA_read_resp,
+    ST_Queue<Dram_Read_Resp> &host_dramA_read_resp,
+    ST_Queue<Dram_Read_Resp> &device_dramA_read_resp,
+    ST_Queue<bool> &dramA_read_context) {
   bool valid_state = 0;
   bool data_state;
   bool valid_read_resp = 0;
@@ -26,15 +25,14 @@ void dramA_read_resp_multiplexer(
     if (valid_state && valid_read_resp) {
       valid_read_resp = false;
       if (data_state == HOST_READ_REQ) {
-	host_dramA_read_resp.write(data_read_resp);
-      }
-      else {
-	device_dramA_read_resp.write(data_read_resp);
+        host_dramA_read_resp.write(data_read_resp);
+      } else {
+        device_dramA_read_resp.write(data_read_resp);
       }
       if (data_read_resp.last) {
-	valid_state = false;
+        valid_state = false;
       }
-    }    
+    }
   }
 }
 

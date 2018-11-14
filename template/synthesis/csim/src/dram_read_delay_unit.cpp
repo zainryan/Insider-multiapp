@@ -4,10 +4,10 @@
 #include <insider_kernel.h>
 
 void dram_read_delay_unit(
-			  ST_Queue<unsigned int> &device_read_delay_cycle_cnts, 
-			  ST_Queue<Dram_Read_Req_With_Time> &before_delay_unified_dram_read_req_with_time, 
-			  ST_Queue<Dram_Read_Req> &after_delay_unified_dram_read_req
-			  ) {
+    ST_Queue<unsigned int> &device_read_delay_cycle_cnts,
+    ST_Queue<Dram_Read_Req_With_Time>
+        &before_delay_unified_dram_read_req_with_time,
+    ST_Queue<Dram_Read_Req> &after_delay_unified_dram_read_req) {
   unsigned long long time = 0;
   unsigned long long delay_cycle_cnt = 0;
   Dram_Read_Req_With_Time read_req_with_time;
@@ -23,14 +23,17 @@ void dram_read_delay_unit(
     }
 
     if (valid_read_req_with_time ||
-        (valid_read_req_with_time = before_delay_unified_dram_read_req_with_time.read_nb(read_req_with_time))) {
+        (valid_read_req_with_time =
+             before_delay_unified_dram_read_req_with_time.read_nb(
+                 read_req_with_time))) {
       if (read_req_with_time.time + delay_cycle_cnt <= time) {
-        if (after_delay_unified_dram_read_req.write_nb(read_req_with_time.req)) {
+        if (after_delay_unified_dram_read_req.write_nb(
+                read_req_with_time.req)) {
           valid_read_req_with_time = false;
         }
       }
     }
-    time ++;
+    time++;
   }
 }
 

@@ -44,35 +44,31 @@
 #-  regulations governing limitations on product liability.
 #-
 #-  THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
-#-  PART OF THIS FILE AT ALL TIMES. 
+#-  PART OF THIS FILE AT ALL TIMES.
 #- ************************************************************************
 
  *
  * $Id$
  */
 
-
 #ifndef _AUTOPILOT_UTILS_H_
 #define _AUTOPILOT_UTILS_H_
 
-
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifdef __CYGWIN__
-#  ifdef feof
-#    undef feof
-#  endif
-
-#  ifdef ferror
-#    undef ferror
-#  endif
+#ifdef feof
+#undef feof
 #endif
 
+#ifdef ferror
+#undef ferror
+#endif
+#endif
 
 #include "etc/autopilot_enum.h"
 #include "etc/autopilot_ssdm_op.h"
-
 
 #endif /* #ifndef _AUTOPILOT_UTILS_H_ */
 

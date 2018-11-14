@@ -45,15 +45,15 @@
 //  PART OF THIS FILE AT ALL TIMES.
 //-----------------------------------------------------------------------------
 
-// Common typedefs, constants and functions for use across Xilinx bit-accurate C models
-// which use the Multiple Integer Precision types from GMP / MPIR library.
-// #include this file inside each C model's exported header file
+// Common typedefs, constants and functions for use across Xilinx bit-accurate C
+// models which use the Multiple Integer Precision types from GMP / MPIR
+// library. #include this file inside each C model's exported header file
 
 #ifndef XIP_MPZ_BITACC_CMODEL_H
 #define XIP_MPZ_BITACC_CMODEL_H
 
-#include "xip_common_bitacc_cmodel.h"
 #include "gmp.h"
+#include "xip_common_bitacc_cmodel.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,23 +68,28 @@ typedef mpz_t xip_mpz;
 /**
  * Multiple Integer Precision (MPZ) complex type
  */
-typedef struct { xip_mpz re, im; } xip_mpz_complex;
+typedef struct {
+  xip_mpz re, im;
+} xip_mpz_complex;
 #define xip_type_trait_mpz_complex 2
 
 /**
  * Declare and export the mpz array types
  */
-DECLARE_XIP_ARRAY(mpz        ); EXPORT_XIP_ARRAY(mpz        ,XIP_XILINX_XIP_TARGET);
-DECLARE_XIP_ARRAY(mpz_complex); EXPORT_XIP_ARRAY(mpz_complex,XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY(mpz);
+EXPORT_XIP_ARRAY(mpz, XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY(mpz_complex);
+EXPORT_XIP_ARRAY(mpz_complex, XIP_XILINX_XIP_TARGET);
 
-//Exposed interfaces for each xip_array_* type only if a previous Xilinx C model has not already done so
+// Exposed interfaces for each xip_array_* type only if a previous Xilinx C
+// model has not already done so
 #ifndef XIP_ARRAY_MPZ_API
-DECLARE_XIP_ARRAY_INTERFACE(mpz        ,XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY_INTERFACE(mpz, XIP_XILINX_XIP_TARGET);
 #define XIP_ARRAY_MPZ_API
 #endif
 
 #ifndef XIP_ARRAY_MPZ_COMPLEX_API
-DECLARE_XIP_ARRAY_INTERFACE(mpz_complex,XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY_INTERFACE(mpz_complex, XIP_XILINX_XIP_TARGET);
 #define XIP_ARRAY_MPZ_COMPLEX_API
 #endif
 
@@ -93,4 +98,3 @@ DECLARE_XIP_ARRAY_INTERFACE(mpz_complex,XIP_XILINX_XIP_TARGET);
 #endif
 
 #endif // XIP_MPZ_BITACC_CMODEL_H
-

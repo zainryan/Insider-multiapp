@@ -4,10 +4,9 @@
 #include <insider_kernel.h>
 
 void unused_channel_preserver(
-			      ST_Queue<Dram_Write_Req_Data> &device_dram_write_req_data,
-			      ST_Queue<Dram_Write_Req_Apply> &device_dram_write_req_apply,
-			      ST_Queue<bool> &preserver_cheat_signals
-) {
+    ST_Queue<Dram_Write_Req_Data> &device_dram_write_req_data,
+    ST_Queue<Dram_Write_Req_Apply> &device_dram_write_req_apply,
+    ST_Queue<bool> &preserver_cheat_signals) {
   while (1) {
 #pragma HLS pipeline
     bool dummy;

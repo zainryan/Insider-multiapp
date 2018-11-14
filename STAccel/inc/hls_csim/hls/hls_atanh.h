@@ -35,7 +35,7 @@
 namespace explog_based {
 
 /*
-  Method: 
+  Method:
   atanh(x), odd function
   input: nan           outout: nan
   input: inf           output: nan
@@ -45,85 +45,60 @@ namespace explog_based {
   input: [0.0,0.5)     output: 0.5*log1p(2x+2x*x/(1-x))
   input: [0.5,1.0)     output: 0.5*log1p(2x/(1-x))
 */
-  template<class T>
-  T generic_atanh(T t_in){
+template <class T> T generic_atanh(T t_in) {
 
-    static const int exp_bias = fp_struct<T>::EXP_BIAS;
+  static const int exp_bias = fp_struct<T>::EXP_BIAS;
 
-    fp_struct<T> din(t_in); 
-    T abst_in = hls::fabs(t_in);
-    T resultf;
+  fp_struct<T> din(t_in);
+  T abst_in = hls::fabs(t_in);
+  T resultf;
 
-    if(din.exp==fp_struct<T>::EXP_INFNAN){
-      
-      resultf = ::hls::nan(""); 
-    }
-    else if((din.exp>exp_bias) or
-	    (din.exp==exp_bias and din.sig>0)){
-     
-      resultf = ::hls::nan(""); 
-    }
-    else if(din.exp==exp_bias and din.sig==0){
-    
-      fp_struct<T> out;
-      out.sign = 0;
-      out.exp = fp_struct<T>::EXP_INFNAN;
-      out.sig = 0;
-      resultf = out.to_ieee(); // +inf
-    }
-    else{
-      
-      const T cst1 = 1.0;
-      const T cst05 = 0.5;
-      T t = abst_in + abst_in;
-      T x;
-      if(din.exp<exp_bias-1){
-	x = t + t*abst_in/(cst1-abst_in);
-      }
-      else{ 
-	x = t/(cst1-abst_in);
-      };
+  if (din.exp == fp_struct<T>::EXP_INFNAN) {
 
-      resultf = cst05 * hls::log1p(x);
-    }
+    resultf = ::hls::nan("");
+  } else if ((din.exp > exp_bias) or (din.exp == exp_bias and din.sig > 0)) {
 
-    // return
-    if(din.sign == 0){ // positive 
-      return resultf;
-    }
-    else{
-      return -resultf;
+    resultf = ::hls::nan("");
+  } else if (din.exp == exp_bias and din.sig == 0) {
+
+    fp_struct<T> out;
+    out.sign = 0;
+    out.exp = fp_struct<T>::EXP_INFNAN;
+    out.sig = 0;
+    resultf = out.to_ieee(); // +inf
+  } else {
+
+    const T cst1 = 1.0;
+    const T cst05 = 0.5;
+    T t = abst_in + abst_in;
+    T x;
+    if (din.exp < exp_bias - 1) {
+      x = t + t * abst_in / (cst1 - abst_in);
+    } else {
+      x = t / (cst1 - abst_in);
     };
-  };
 
-  static 
-  double atanh(double t_in)
-  {
-    return generic_atanh(t_in);
-  };
+    resultf = cst05 * hls::log1p(x);
+  }
 
-  static 
-  float atanh(float t_in)
-  {
-    return generic_atanh(t_in);
+  // return
+  if (din.sign == 0) { // positive
+    return resultf;
+  } else {
+    return -resultf;
   };
+};
 
-  static 
-  half atanh(half t_in)
-  {
-    return generic_atanh(t_in);
-  };
+static double atanh(double t_in) { return generic_atanh(t_in); };
 
-  static 
-  float atanhf(float t_in){
-    return generic_atanh(t_in);
-  };
-  
-  static 
-  half half_atanh(half t_in){
-    return generic_atanh(t_in);
-  };
+static float atanh(float t_in) { return generic_atanh(t_in); };
 
-}
+static half atanh(half t_in) { return generic_atanh(t_in); };
+
+static float atanhf(float t_in) { return generic_atanh(t_in); };
+
+static half half_atanh(half t_in) { return generic_atanh(t_in); };
+
+} // namespace explog_based
 
 #endif

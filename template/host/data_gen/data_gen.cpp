@@ -1,10 +1,10 @@
-#include <vector>
-#include <string>
 #include <cassert>
-#include <iostream>
-#include <fstream>
-#include <omp.h>
 #include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <omp.h>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -21,14 +21,14 @@ int main() {
   ios::sync_with_stdio(false);
 
   freopen("input.txt", "w", stdout);
-  
-  for (int i = 0; i < FILE_ROW_NUM; i ++) {
+
+  for (int i = 0; i < FILE_ROW_NUM; i++) {
     string line = "";
-    for (int j = 0; j < FILE_COL_NUM - 1; j ++) {
+    for (int j = 0; j < FILE_COL_NUM - 1; j++) {
       line += random_char();
     }
     cout << line << endl;
   }
-  
+
   return 0;
 }

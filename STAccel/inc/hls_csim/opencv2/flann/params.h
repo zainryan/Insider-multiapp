@@ -26,7 +26,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *************************************************************************/
 
-
 #ifndef OPENCV_FLANN_PARAMS_H_
 #define OPENCV_FLANN_PARAMS_H_
 
@@ -35,63 +34,51 @@
 #include <iostream>
 #include <map>
 
-
-namespace cvflann
-{
+namespace cvflann {
 
 typedef std::map<std::string, any> IndexParams;
 
-struct SearchParams : public IndexParams
-{
-    SearchParams(int checks = 32, float eps = 0, bool sorted = true )
-    {
-        // how many leafs to visit when searching for neighbours (-1 for unlimited)
-        (*this)["checks"] = checks;
-        // search for eps-approximate neighbours (default: 0)
-        (*this)["eps"] = eps;
-        // only for radius search, require neighbours sorted by distance (default: true)
-        (*this)["sorted"] = sorted;
-    }
+struct SearchParams : public IndexParams {
+  SearchParams(int checks = 32, float eps = 0, bool sorted = true) {
+    // how many leafs to visit when searching for neighbours (-1 for unlimited)
+    (*this)["checks"] = checks;
+    // search for eps-approximate neighbours (default: 0)
+    (*this)["eps"] = eps;
+    // only for radius search, require neighbours sorted by distance (default:
+    // true)
+    (*this)["sorted"] = sorted;
+  }
 };
 
-
-template<typename T>
-T get_param(const IndexParams& params, std::string name, const T& default_value)
-{
-    IndexParams::const_iterator it = params.find(name);
-    if (it != params.end()) {
-        return it->second.cast<T>();
-    }
-    else {
-        return default_value;
-    }
+template <typename T>
+T get_param(const IndexParams &params, std::string name,
+            const T &default_value) {
+  IndexParams::const_iterator it = params.find(name);
+  if (it != params.end()) {
+    return it->second.cast<T>();
+  } else {
+    return default_value;
+  }
 }
 
-template<typename T>
-T get_param(const IndexParams& params, std::string name)
-{
-    IndexParams::const_iterator it = params.find(name);
-    if (it != params.end()) {
-        return it->second.cast<T>();
-    }
-    else {
-        throw FLANNException(std::string("Missing parameter '")+name+std::string("' in the parameters given"));
-    }
+template <typename T> T get_param(const IndexParams &params, std::string name) {
+  IndexParams::const_iterator it = params.find(name);
+  if (it != params.end()) {
+    return it->second.cast<T>();
+  } else {
+    throw FLANNException(std::string("Missing parameter '") + name +
+                         std::string("' in the parameters given"));
+  }
 }
 
-inline void print_params(const IndexParams& params)
-{
-    IndexParams::const_iterator it;
+inline void print_params(const IndexParams &params) {
+  IndexParams::const_iterator it;
 
-    for(it=params.begin(); it!=params.end(); ++it) {
-        std::cout << it->first << " : " << it->second << std::endl;
-    }
+  for (it = params.begin(); it != params.end(); ++it) {
+    std::cout << it->first << " : " << it->second << std::endl;
+  }
 }
 
-
-
-}
-
+} // namespace cvflann
 
 #endif /* OPENCV_FLANN_PARAMS_H_ */
-

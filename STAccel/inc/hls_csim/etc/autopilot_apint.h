@@ -44,7 +44,7 @@
 #-  regulations governing limitations on product liability.
 #-
 #-  THIS COPYRIGHT NOTICE AND DISCLAIMER MUST BE RETAINED AS
-#-  PART OF THIS FILE AT ALL TIMES. 
+#-  PART OF THIS FILE AT ALL TIMES.
 #- ************************************************************************
 
  *
@@ -72,15 +72,12 @@
 #define APInt_XorReduce(X) _ssdm_op_reduce(xor, X)
 #define APInt_XnorReduce(X) _ssdm_op_reduce(nxor, X)
 
-#define APInt_BitsFromString(Str, Bits) \
-    _ssdm_op_bitsFromString(Str, Bits)
-#define APInt_BitsFromHexString(Str, Bits) \
-    _ssdm_op_bitsFromHexString(Str, Bits)
-#define APInt_BitsFromOctalString(Str, Bits) \
-    _ssdm_op_bitsFromOctalString(Str, Bits)
-#define APInt_BitsFromBinaryString(Str, Bits) \
-    _ssdm_op_bitsFromBinaryString(Str, Bits)
-
+#define APInt_BitsFromString(Str, Bits) _ssdm_op_bitsFromString(Str, Bits)
+#define APInt_BitsFromHexString(Str, Bits) _ssdm_op_bitsFromHexString(Str, Bits)
+#define APInt_BitsFromOctalString(Str, Bits)                                   \
+  _ssdm_op_bitsFromOctalString(Str, Bits)
+#define APInt_BitsFromBinaryString(Str, Bits)                                  \
+  _ssdm_op_bitsFromBinaryString(Str, Bits)
 
 /************************************************/
 
@@ -100,13 +97,15 @@
 #define apint_xnor_reduce(X) _ssdm_op_reduce(nxor, X)
 
 #define apint_print(Val, Radix) _ssdm_op_print_apint(Val, Radix)
-#define apint_fprint(FileOut, Val, Radix) _ssdm_op_fprint_apint(FileOut, Val, Radix)
+#define apint_fprint(FileOut, Val, Radix)                                      \
+  _ssdm_op_fprint_apint(FileOut, Val, Radix)
 
 #define apint_vstring2bits_hex(Str, Bits) _ssdm_op_sscan_hex_apint(Str, Bits)
 #define apint_string2bits_dec(Str, Bits) _ssdm_op_bitsFromString(Str, Bits)
 #define apint_string2bits_hex(Str, Bits) _ssdm_op_bitsFromHexString(Str, Bits)
 #define apint_string2bits_oct(Str, Bits) _ssdm_op_bitsFromOctalString(Str, Bits)
-#define apint_string2bits_bin(Str, Bits) _ssdm_op_bitsFromBinaryString(Str, Bits)
+#define apint_string2bits_bin(Str, Bits)                                       \
+  _ssdm_op_bitsFromBinaryString(Str, Bits)
 #define apint_string2bits(Str, Bits) apint_string2bits_dec(Str, Bits)
 
 #endif

@@ -45,13 +45,13 @@
 //  PART OF THIS FILE AT ALL TIMES.
 //-----------------------------------------------------------------------------
 
-// Common typedefs, constants and functions for use across Xilinx bit-accurate C models.
-// #include this file inside each C model's exported header file.
+// Common typedefs, constants and functions for use across Xilinx bit-accurate C
+// models. #include this file inside each C model's exported header file.
 
 #ifndef XIP_COMMON_BITACC_CMODEL_H
 #define XIP_COMMON_BITACC_CMODEL_H
 
-//Determine shared library import attributes
+// Determine shared library import attributes
 #ifndef XIP_XILINX_XIP_IMPEXP
 #if defined(NT) || defined(NT64)
 #define XIP_XILINX_XIP_IMPEXP __declspec(dllimport)
@@ -62,7 +62,7 @@
 #endif
 #endif
 
-//Determine best way to approximate inline functions
+// Determine best way to approximate inline functions
 #ifndef XIP_XILINX_XIP_INLINE
 #ifdef __cplusplus
 #define XIP_XILINX_XIP_INLINE inline
@@ -73,9 +73,10 @@
 #endif
 #endif
 
-//Check we know which model we are being included for
+// Check we know which model we are being included for
 #ifndef XIP_XILINX_XIP_TARGET
-#error "XIP_XILINX_XIP_TARGET undefined; must give interface name of model being compiled"
+#error                                                                         \
+    "XIP_XILINX_XIP_TARGET undefined; must give interface name of model being compiled"
 #endif
 
 #ifdef __cplusplus
@@ -86,7 +87,6 @@ extern "C" {
 #include <stddef.h>
 #endif
 
-
 /**
  * Result code from DLL functions
  */
@@ -95,8 +95,8 @@ typedef int xip_status;
 /**
  * Error codes
  */
-#define XIP_STATUS_OK     0
-#define XIP_STATUS_ERROR  1
+#define XIP_STATUS_OK 0
+#define XIP_STATUS_ERROR 1
 
 /**
  * Bit type
@@ -113,7 +113,9 @@ typedef double xip_real;
 /**
  * Complex scalar type
  */
-typedef struct { xip_real re, im; } xip_complex;
+typedef struct {
+  xip_real re, im;
+} xip_complex;
 #define xip_type_trait_complex 0
 
 /**
@@ -128,133 +130,203 @@ typedef unsigned int xip_uint;
 typedef unsigned int xip_uint32;
 #define xip_type_trait_uint32 0
 
-
 /**
- * Declare a xip_array_<type> structure for holding multi-dimensional arrays of xip_<type> instances
- * Use xip_array_<type>_create() to create an array instance
- * Use xip_array_<type>_create_ex(xip_array_<type>_operations* ops) to create an array instance using a given xip_array_<type>_operations object
- * Use xip_array_<type>_reserve_data(xip_array_<type>* array, size_t n) to reserve data elements
- * Use xip_array_<type>_reserve_dim(xip_array_<type>* array, size_t n) to reserve dimension elements
- * Use xip_array_<type>_destroy(xip_array_<type>*) to destroy an array instance
- * Use xip_array_<type>_sub2ind_*(const xip_array_<type>* p, size_t s0...) to obtain an index from a list of subscripts
- * Use xip_array_<type>_set_element(xip_array_<type>* p, const xip_<type> value, size_t index) to set a value
- * Use xip_array_<type>_get_element(const xip_array_<type>* p, xip_<type>* value, size_t index) to get a value
+ * Declare a xip_array_<type> structure for holding multi-dimensional arrays of
+ * xip_<type> instances Use xip_array_<type>_create() to create an array
+ * instance Use xip_array_<type>_create_ex(xip_array_<type>_operations* ops) to
+ * create an array instance using a given xip_array_<type>_operations object Use
+ * xip_array_<type>_reserve_data(xip_array_<type>* array, size_t n) to reserve
+ * data elements Use xip_array_<type>_reserve_dim(xip_array_<type>* array,
+ * size_t n) to reserve dimension elements Use
+ * xip_array_<type>_destroy(xip_array_<type>*) to destroy an array instance Use
+ * xip_array_<type>_sub2ind_*(const xip_array_<type>* p, size_t s0...) to obtain
+ * an index from a list of subscripts Use
+ * xip_array_<type>_set_element(xip_array_<type>* p, const xip_<type> value,
+ * size_t index) to set a value Use xip_array_<type>_get_element(const
+ * xip_array_<type>* p, xip_<type>* value, size_t index) to get a value
  *
  * e.g.
  *    xip_array_real* array = xip_array_real_create();  //Create an empty array
- *    xip_array_real_reserve_data(array,1000);          //Reserve space for 1000 elements
- *    xip_array_real_reserve_dim(array,10);             //Reserve space for 10 dimensions
- *    array = xip_array_real_destroy(array);            //Destroy array
+ *    xip_array_real_reserve_data(array,1000);          //Reserve space for 1000
+ * elements xip_array_real_reserve_dim(array,10);             //Reserve space
+ * for 10 dimensions array = xip_array_real_destroy(array);            //Destroy
+ * array
  *
  */
-#define DECLARE_XIP_ARRAY(TYPE)  \
-typedef struct xip_array_##TYPE##_struct xip_array_##TYPE;                          \
-typedef struct xip_array_##TYPE##_operations_struct xip_array_##TYPE##_operations;  \
-struct xip_array_##TYPE##_struct {             \
-	xip_##TYPE* data;                          \
-	size_t data_size;                          \
-	size_t data_capacity;                      \
-	size_t* dim;                               \
-	size_t dim_size;                           \
-	size_t dim_capacity;                       \
-	unsigned int owner;                        \
-	const xip_array_##TYPE##_operations* ops;  \
-};                                             \
-struct xip_array_##TYPE##_operations_struct {                                                                           \
-	void* const (*ops_realloc     )(const xip_array_##TYPE##_operations* ops, void* p, size_t size);                    \
-	void        (*ops_free        )(const xip_array_##TYPE##_operations* ops, void* p);                                 \
-	void        (*ops_elem_create )(const xip_array_##TYPE##_operations* ops, xip_##TYPE* e);                           \
-	void        (*ops_elem_copy   )(const xip_array_##TYPE##_operations* ops, xip_##TYPE* dst, const xip_##TYPE* src);  \
-	void        (*ops_elem_swap   )(const xip_array_##TYPE##_operations* ops, xip_##TYPE* e1, xip_##TYPE* e2);          \
-	void        (*ops_elem_destroy)(const xip_array_##TYPE##_operations* ops, xip_##TYPE* e);                           \
-	void* ops_private;                                                                                                  \
-}
+#define DECLARE_XIP_ARRAY(TYPE)                                                \
+  typedef struct xip_array_##TYPE##_struct xip_array_##TYPE;                   \
+  typedef struct xip_array_##TYPE##_operations_struct                          \
+      xip_array_##TYPE##_operations;                                           \
+  struct xip_array_##TYPE##_struct {                                           \
+    xip_##TYPE *data;                                                          \
+    size_t data_size;                                                          \
+    size_t data_capacity;                                                      \
+    size_t *dim;                                                               \
+    size_t dim_size;                                                           \
+    size_t dim_capacity;                                                       \
+    unsigned int owner;                                                        \
+    const xip_array_##TYPE##_operations *ops;                                  \
+  };                                                                           \
+  struct xip_array_##TYPE##_operations_struct {                                \
+    void *const (*ops_realloc)(const xip_array_##TYPE##_operations *ops,       \
+                               void *p, size_t size);                          \
+    void (*ops_free)(const xip_array_##TYPE##_operations *ops, void *p);       \
+    void (*ops_elem_create)(const xip_array_##TYPE##_operations *ops,          \
+                            xip_##TYPE *e);                                    \
+    void (*ops_elem_copy)(const xip_array_##TYPE##_operations *ops,            \
+                          xip_##TYPE *dst, const xip_##TYPE *src);             \
+    void (*ops_elem_swap)(const xip_array_##TYPE##_operations *ops,            \
+                          xip_##TYPE *e1, xip_##TYPE *e2);                     \
+    void (*ops_elem_destroy)(const xip_array_##TYPE##_operations *ops,         \
+                             xip_##TYPE *e);                                   \
+    void *ops_private;                                                         \
+  }
 
 /**
  * Export xip_array_<type> functions
  */
-#define EXPORT_XIP_ARRAY(TYPE,TARGET)  EXPORT_XIP_ARRAY_RAW(TYPE,TARGET)
-#define EXPORT_XIP_ARRAY_RAW(TYPE,TARGET)                                                                                                                \
-XIP_XILINX_XIP_IMPEXP xip_array_##TYPE* const xip_##TARGET##_xip_array_##TYPE##_create();                                                                \
-XIP_XILINX_XIP_IMPEXP xip_array_##TYPE* const xip_##TARGET##_xip_array_##TYPE##_create_ex(const xip_array_##TYPE##_operations* ops);                     \
-XIP_XILINX_XIP_IMPEXP const xip_status xip_##TARGET##_xip_array_##TYPE##_reserve_data(xip_array_##TYPE* p, size_t max_nels);                             \
-XIP_XILINX_XIP_IMPEXP const xip_status xip_##TARGET##_xip_array_##TYPE##_reserve_dim(xip_array_##TYPE* p, size_t max_ndim);                              \
-XIP_XILINX_XIP_IMPEXP xip_array_##TYPE* const xip_##TARGET##_xip_array_##TYPE##_destroy(xip_array_##TYPE* p);                                            \
-XIP_XILINX_XIP_IMPEXP const size_t xip_##TARGET##_xip_array_##TYPE##_sub2ind_1d(const xip_array_##TYPE* p, size_t s0);                                   \
-XIP_XILINX_XIP_IMPEXP const size_t xip_##TARGET##_xip_array_##TYPE##_sub2ind_2d(const xip_array_##TYPE* p, size_t s0, size_t s1);                        \
-XIP_XILINX_XIP_IMPEXP const size_t xip_##TARGET##_xip_array_##TYPE##_sub2ind_3d(const xip_array_##TYPE* p, size_t s0, size_t s1, size_t s2);             \
-XIP_XILINX_XIP_IMPEXP const size_t xip_##TARGET##_xip_array_##TYPE##_sub2ind_4d(const xip_array_##TYPE* p, size_t s0, size_t s1, size_t s2, size_t s3);  \
-XIP_XILINX_XIP_IMPEXP const xip_status xip_##TARGET##_xip_array_##TYPE##_set_element(xip_array_##TYPE* p, const xip_##TYPE* value, size_t index);        \
-XIP_XILINX_XIP_IMPEXP const xip_status xip_##TARGET##_xip_array_##TYPE##_get_element(const xip_array_##TYPE* p, xip_##TYPE* value, size_t index)
+#define EXPORT_XIP_ARRAY(TYPE, TARGET) EXPORT_XIP_ARRAY_RAW(TYPE, TARGET)
+#define EXPORT_XIP_ARRAY_RAW(TYPE, TARGET)                                     \
+  XIP_XILINX_XIP_IMPEXP xip_array_##TYPE                                       \
+      *const xip_##TARGET##_xip_array_##TYPE##_create();                       \
+  XIP_XILINX_XIP_IMPEXP xip_array_##TYPE                                       \
+      *const xip_##TARGET##_xip_array_##TYPE##_create_ex(                      \
+          const xip_array_##TYPE##_operations *ops);                           \
+  XIP_XILINX_XIP_IMPEXP const xip_status                                       \
+      xip_##TARGET##_xip_array_##TYPE##_reserve_data(xip_array_##TYPE *p,      \
+                                                     size_t max_nels);         \
+  XIP_XILINX_XIP_IMPEXP const xip_status                                       \
+      xip_##TARGET##_xip_array_##TYPE##_reserve_dim(xip_array_##TYPE *p,       \
+                                                    size_t max_ndim);          \
+  XIP_XILINX_XIP_IMPEXP xip_array_##TYPE                                       \
+      *const xip_##TARGET##_xip_array_##TYPE##_destroy(xip_array_##TYPE *p);   \
+  XIP_XILINX_XIP_IMPEXP const size_t                                           \
+      xip_##TARGET##_xip_array_##TYPE##_sub2ind_1d(const xip_array_##TYPE *p,  \
+                                                   size_t s0);                 \
+  XIP_XILINX_XIP_IMPEXP const size_t                                           \
+      xip_##TARGET##_xip_array_##TYPE##_sub2ind_2d(const xip_array_##TYPE *p,  \
+                                                   size_t s0, size_t s1);      \
+  XIP_XILINX_XIP_IMPEXP const size_t                                           \
+      xip_##TARGET##_xip_array_##TYPE##_sub2ind_3d(                            \
+          const xip_array_##TYPE *p, size_t s0, size_t s1, size_t s2);         \
+  XIP_XILINX_XIP_IMPEXP const size_t                                           \
+      xip_##TARGET##_xip_array_##TYPE##_sub2ind_4d(const xip_array_##TYPE *p,  \
+                                                   size_t s0, size_t s1,       \
+                                                   size_t s2, size_t s3);      \
+  XIP_XILINX_XIP_IMPEXP const xip_status                                       \
+      xip_##TARGET##_xip_array_##TYPE##_set_element(                           \
+          xip_array_##TYPE *p, const xip_##TYPE *value, size_t index);         \
+  XIP_XILINX_XIP_IMPEXP const xip_status                                       \
+      xip_##TARGET##_xip_array_##TYPE##_get_element(                           \
+          const xip_array_##TYPE *p, xip_##TYPE *value, size_t index)
 
 /**
  * Declare the array type interfaces
- *  Note: for any given xip_array_* there should be only one DECLARE_XIP_ARRAY_INTERFACE to expose the interface
+ *  Note: for any given xip_array_* there should be only one
+ * DECLARE_XIP_ARRAY_INTERFACE to expose the interface
  */
-#define DECLARE_XIP_ARRAY_INTERFACE(TYPE,TARGET)  DECLARE_XIP_ARRAY_INTERFACE_RAW(TYPE,TARGET)
-#define DECLARE_XIP_ARRAY_INTERFACE_RAW(TYPE,TARGET)  \
-XIP_XILINX_XIP_INLINE xip_array_##TYPE* const xip_array_##TYPE##_create()                                                                { return xip_##TARGET##_xip_array_##TYPE##_create();                    }  \
-XIP_XILINX_XIP_INLINE xip_array_##TYPE* const xip_array_##TYPE##_create_ex(const xip_array_##TYPE##_operations* ops)                     { return xip_##TARGET##_xip_array_##TYPE##_create_ex(ops);              }  \
-XIP_XILINX_XIP_INLINE const xip_status  xip_array_##TYPE##_reserve_data(xip_array_##TYPE* p, size_t max_nels)                            { return xip_##TARGET##_xip_array_##TYPE##_reserve_data(p,max_nels);    }  \
-XIP_XILINX_XIP_INLINE const xip_status  xip_array_##TYPE##_reserve_dim(xip_array_##TYPE* p, size_t max_ndim)                             { return xip_##TARGET##_xip_array_##TYPE##_reserve_dim(p,max_ndim);     }  \
-XIP_XILINX_XIP_INLINE xip_array_##TYPE* const xip_array_##TYPE##_destroy(xip_array_##TYPE* p)                                            { return xip_##TARGET##_xip_array_##TYPE##_destroy(p);                  }  \
-XIP_XILINX_XIP_INLINE const size_t xip_array_##TYPE##_sub2ind_1d(const xip_array_##TYPE* p, size_t s0)                                   { return xip_##TARGET##_xip_array_##TYPE##_sub2ind_1d(p,s0);            }  \
-XIP_XILINX_XIP_INLINE const size_t xip_array_##TYPE##_sub2ind_2d(const xip_array_##TYPE* p, size_t s0, size_t s1)                        { return xip_##TARGET##_xip_array_##TYPE##_sub2ind_2d(p,s0,s1);         }  \
-XIP_XILINX_XIP_INLINE const size_t xip_array_##TYPE##_sub2ind_3d(const xip_array_##TYPE* p, size_t s0, size_t s1, size_t s2)             { return xip_##TARGET##_xip_array_##TYPE##_sub2ind_3d(p,s0,s1,s2);      }  \
-XIP_XILINX_XIP_INLINE const size_t xip_array_##TYPE##_sub2ind_4d(const xip_array_##TYPE* p, size_t s0, size_t s1, size_t s2, size_t s3)  { return xip_##TARGET##_xip_array_##TYPE##_sub2ind_4d(p,s0,s1,s2,s3);   }  \
-XIP_XILINX_XIP_INLINE const xip_status  xip_array_##TYPE##_set_element(xip_array_##TYPE* p, const xip_##TYPE* value, size_t index)       { return xip_##TARGET##_xip_array_##TYPE##_set_element(p,value,index);  }  \
-XIP_XILINX_XIP_INLINE const xip_status  xip_array_##TYPE##_get_element(const xip_array_##TYPE* p, xip_##TYPE* value, size_t index)       { return xip_##TARGET##_xip_array_##TYPE##_get_element(p,value,index);  }
+#define DECLARE_XIP_ARRAY_INTERFACE(TYPE, TARGET)                              \
+  DECLARE_XIP_ARRAY_INTERFACE_RAW(TYPE, TARGET)
+#define DECLARE_XIP_ARRAY_INTERFACE_RAW(TYPE, TARGET)                          \
+  XIP_XILINX_XIP_INLINE xip_array_##TYPE *const xip_array_##TYPE##_create() {  \
+    return xip_##TARGET##_xip_array_##TYPE##_create();                         \
+  }                                                                            \
+  XIP_XILINX_XIP_INLINE xip_array_##TYPE *const xip_array_##TYPE##_create_ex(  \
+      const xip_array_##TYPE##_operations *ops) {                              \
+    return xip_##TARGET##_xip_array_##TYPE##_create_ex(ops);                   \
+  }                                                                            \
+  XIP_XILINX_XIP_INLINE const xip_status xip_array_##TYPE##_reserve_data(      \
+      xip_array_##TYPE *p, size_t max_nels) {                                  \
+    return xip_##TARGET##_xip_array_##TYPE##_reserve_data(p, max_nels);        \
+  }                                                                            \
+  XIP_XILINX_XIP_INLINE const xip_status xip_array_##TYPE##_reserve_dim(       \
+      xip_array_##TYPE *p, size_t max_ndim) {                                  \
+    return xip_##TARGET##_xip_array_##TYPE##_reserve_dim(p, max_ndim);         \
+  }                                                                            \
+  XIP_XILINX_XIP_INLINE xip_array_##TYPE *const xip_array_##TYPE##_destroy(    \
+      xip_array_##TYPE *p) {                                                   \
+    return xip_##TARGET##_xip_array_##TYPE##_destroy(p);                       \
+  }                                                                            \
+  XIP_XILINX_XIP_INLINE const size_t xip_array_##TYPE##_sub2ind_1d(            \
+      const xip_array_##TYPE *p, size_t s0) {                                  \
+    return xip_##TARGET##_xip_array_##TYPE##_sub2ind_1d(p, s0);                \
+  }                                                                            \
+  XIP_XILINX_XIP_INLINE const size_t xip_array_##TYPE##_sub2ind_2d(            \
+      const xip_array_##TYPE *p, size_t s0, size_t s1) {                       \
+    return xip_##TARGET##_xip_array_##TYPE##_sub2ind_2d(p, s0, s1);            \
+  }                                                                            \
+  XIP_XILINX_XIP_INLINE const size_t xip_array_##TYPE##_sub2ind_3d(            \
+      const xip_array_##TYPE *p, size_t s0, size_t s1, size_t s2) {            \
+    return xip_##TARGET##_xip_array_##TYPE##_sub2ind_3d(p, s0, s1, s2);        \
+  }                                                                            \
+  XIP_XILINX_XIP_INLINE const size_t xip_array_##TYPE##_sub2ind_4d(            \
+      const xip_array_##TYPE *p, size_t s0, size_t s1, size_t s2, size_t s3) { \
+    return xip_##TARGET##_xip_array_##TYPE##_sub2ind_4d(p, s0, s1, s2, s3);    \
+  }                                                                            \
+  XIP_XILINX_XIP_INLINE const xip_status xip_array_##TYPE##_set_element(       \
+      xip_array_##TYPE *p, const xip_##TYPE *value, size_t index) {            \
+    return xip_##TARGET##_xip_array_##TYPE##_set_element(p, value, index);     \
+  }                                                                            \
+  XIP_XILINX_XIP_INLINE const xip_status xip_array_##TYPE##_get_element(       \
+      const xip_array_##TYPE *p, xip_##TYPE *value, size_t index) {            \
+    return xip_##TARGET##_xip_array_##TYPE##_get_element(p, value, index);     \
+  }
 
 /**
  * Declare and export the fundamental array types
  */
-DECLARE_XIP_ARRAY(bit    ); EXPORT_XIP_ARRAY(bit    ,XIP_XILINX_XIP_TARGET);
-DECLARE_XIP_ARRAY(real   ); EXPORT_XIP_ARRAY(real   ,XIP_XILINX_XIP_TARGET);
-DECLARE_XIP_ARRAY(complex); EXPORT_XIP_ARRAY(complex,XIP_XILINX_XIP_TARGET);
-DECLARE_XIP_ARRAY(uint   ); EXPORT_XIP_ARRAY(uint   ,XIP_XILINX_XIP_TARGET);
-DECLARE_XIP_ARRAY(uint32 ); EXPORT_XIP_ARRAY(uint32 ,XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY(bit);
+EXPORT_XIP_ARRAY(bit, XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY(real);
+EXPORT_XIP_ARRAY(real, XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY(complex);
+EXPORT_XIP_ARRAY(complex, XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY(uint);
+EXPORT_XIP_ARRAY(uint, XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY(uint32);
+EXPORT_XIP_ARRAY(uint32, XIP_XILINX_XIP_TARGET);
 
-
-//Exposed interfaces for each xip_array_* type only if a previous Xilinx C model has not already done so
+// Exposed interfaces for each xip_array_* type only if a previous Xilinx C
+// model has not already done so
 #ifndef XIP_ARRAY_BIT_API
-DECLARE_XIP_ARRAY_INTERFACE(bit    ,XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY_INTERFACE(bit, XIP_XILINX_XIP_TARGET);
 #define XIP_ARRAY_BIT_API
 #endif
 
 #ifndef XIP_ARRAY_REAL_API
-DECLARE_XIP_ARRAY_INTERFACE(real   ,XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY_INTERFACE(real, XIP_XILINX_XIP_TARGET);
 #define XIP_ARRAY_REAL_API
 #endif
 
 #ifndef XIP_ARRAY_COMPLEX_API
-DECLARE_XIP_ARRAY_INTERFACE(complex,XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY_INTERFACE(complex, XIP_XILINX_XIP_TARGET);
 #define XIP_ARRAY_COMPLEX_API
 #endif
 
 #ifndef XIP_ARRAY_UINT_API
-DECLARE_XIP_ARRAY_INTERFACE(uint   ,XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY_INTERFACE(uint, XIP_XILINX_XIP_TARGET);
 #define XIP_ARRAY_UINT_API
 #endif
 
 #ifndef XIP_ARRAY_UINT32_API
-DECLARE_XIP_ARRAY_INTERFACE(uint32 ,XIP_XILINX_XIP_TARGET);
+DECLARE_XIP_ARRAY_INTERFACE(uint32, XIP_XILINX_XIP_TARGET);
 #define XIP_ARRAY_UINT32_API
 #endif
 
 /**
  * Error-handling callback type
  */
-typedef void (*xip_msg_handler)(void* handle, int error, const char* msg);
+typedef void (*xip_msg_handler)(void *handle, int error, const char *msg);
 
 /**
  * Data-handling callback type
  *  Specific to xip_array_real type
  */
-typedef int (*xip_array_real_handler)(const xip_array_real* data, void* handle, void* opt_arg);
+typedef int (*xip_array_real_handler)(const xip_array_real *data, void *handle,
+                                      void *opt_arg);
 
 #ifdef __cplusplus
 } /* End of "C" linkage block */
 #endif
 
 #endif // XIP_COMMON_BITACC_CMODEL_H
-
