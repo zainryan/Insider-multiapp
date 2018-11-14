@@ -85,7 +85,7 @@ static void init_app_buf_addrs(int app_id) {
       app_buf_phy_addrs[app_id][i] = (unsigned long long)app_id << 32;
     } else {
       app_buf_phy_addrs[app_id][i] =
-          app_buf_phy_addrs[app_id][i - 1] + (1 << (APP_BUF_SIZE_LOG2 + 1));
+	app_buf_phy_addrs[app_id][i - 1] + (1 << (APP_BUF_SIZE_LOG2 + 1));
     }
     cl_poke(TAG(app_buf_addrs_tag), app_buf_phy_addrs[app_id][i] >> 32);
     cl_poke(TAG(app_buf_addrs_tag), app_buf_phy_addrs[app_id][i] & 0xFFFFFFFF);
@@ -97,7 +97,7 @@ static void init() {
   for (i = 0; i < APP_NUM; i++) {
     first[i] = 1;
     app_bufs_ptr[i] = is_eop[i] = buf_idx[i] = buf_len[i] =
-        file_finish_reading[i] = 0;
+      file_finish_reading[i] = 0;
     init_app_buf_addrs(i);
   }
 }
@@ -130,17 +130,17 @@ static void update_metadata(int app_id) {
   volatile unsigned char *metadata_ptr;
   do {
     metadata_addr =
-        app_buf_phy_addrs[app_id][app_bufs_ptr[app_id]] + BUF_METADATA_IDX;
+      app_buf_phy_addrs[app_id][app_bufs_ptr[app_id]] + BUF_METADATA_IDX;
     flag_addr = app_buf_phy_addrs[app_id][app_bufs_ptr[app_id]] +
-                BUF_METADATA_IDX + sizeof(unsigned int);
+      BUF_METADATA_IDX + sizeof(unsigned int);
     flag = (host_memory_getc(flag_addr + 3) << 24) |
-           (host_memory_getc(flag_addr + 2) << 16) |
-           (host_memory_getc(flag_addr + 1) << 8) |
-           (host_memory_getc(flag_addr + 0) << 0);
+      (host_memory_getc(flag_addr + 2) << 16) |
+      (host_memory_getc(flag_addr + 1) << 8) |
+      (host_memory_getc(flag_addr + 0) << 0);
     metadata = (host_memory_getc(metadata_addr + 3) << 24) |
-               (host_memory_getc(metadata_addr + 2) << 16) |
-               (host_memory_getc(metadata_addr + 1) << 8) |
-               (host_memory_getc(metadata_addr + 0) << 0);
+      (host_memory_getc(metadata_addr + 2) << 16) |
+      (host_memory_getc(metadata_addr + 1) << 8) |
+      (host_memory_getc(metadata_addr + 0) << 0);
   } while (!(flag));
   host_memory_putc(flag_addr + 0, 0);
   host_memory_putc(flag_addr + 1, 0);
@@ -187,7 +187,7 @@ ssize_t iread(int fd, void *buf, size_t count) {
     first[app_id] = 0;
   }
   unsigned long long kbuf_addr =
-      app_buf_phy_addrs[app_id][app_bufs_ptr[app_id]];
+    app_buf_phy_addrs[app_id][app_bufs_ptr[app_id]];
   ssize_t read_size;
   if (count >= buf_len[app_id] - buf_idx[app_id]) {
     read_size = buf_len[app_id] - buf_idx[app_id];
@@ -199,7 +199,7 @@ ssize_t iread(int fd, void *buf, size_t count) {
       kernel_user_memcpy(buf, kbuf_addr + buf_idx[app_id], read_size);
       cl_poke(TAG(app_free_buf_tag), 0);
       app_bufs_ptr[app_id] =
-          (app_bufs_ptr[app_id] + 1) & (ALLOCATED_BUF_NUM - 1);
+	(app_bufs_ptr[app_id] + 1) & (ALLOCATED_BUF_NUM - 1);
       buf_idx[app_id] = 0;
       update_metadata(app_id);
     }
@@ -243,7 +243,7 @@ void set_physical_file(int app_id, unsigned char *buf, size_t count) {
     return;
   }
   unsigned long long base_addr =
-      (unsigned long long)app_id * MAX_PHYSICAL_FILE_SIZE;
+    (unsigned long long)app_id * MAX_PHYSICAL_FILE_SIZE;
   size_t i;
   for (i = 0; i < count; i++) {
     dram_write(i + base_addr, buf[i]);
