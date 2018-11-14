@@ -1,6 +1,8 @@
 #ifndef INSIDER_COMMON_H_
 #define INSIDER_COMMON_H_
 
+#include <staccel_type.h>
+
 #define TAG(x) (x << 2)
 #define KBUF_ADDR_TAG (4)
 #define DMA_DELAY_CYCLE_TAG (5)
