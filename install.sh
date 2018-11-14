@@ -15,6 +15,7 @@ fi
 
 orig_path=`pwd`
 
+sudo mkdir -p /opt/Xilinx/license
 sudo cp lic/XilinxAWS.lic /opt/Xilinx/license/XilinxAWS.lic
 
 sudo cp patch/boost/queue.hpp /usr/include/boost/lockfree
