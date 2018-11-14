@@ -20,6 +20,7 @@ sudo cp lic/XilinxAWS.lic /opt/Xilinx/license/XilinxAWS.lic
 
 sudo cp patch/boost/queue.hpp /usr/include/boost/lockfree
 sudo cp patch/aws/cosim/sh_bfm.sv $AWS_FPGA_PATH/hdk/common/verif/models/sh_bfm
+sudo cp patch/aws/cosim/sh_dpi_tasks.svh $AWS_FPGA_PATH/hdk/common/verif/include
 sudo cp patch/aws/runtime/fpga_pci.h $AWS_FPGA_PATH/sdk/userspace/include/fpga_pci.h
 sudo cp patch/aws/runtime/fpga_pci.c $AWS_FPGA_PATH/sdk/userspace/fpga_libs/fpga_pci/fpga_pci.c
 
