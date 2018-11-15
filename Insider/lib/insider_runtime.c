@@ -172,7 +172,8 @@ static int is_from_nvme_fpga(const char *pathname) {
 static int is_registered(const char *pathname, unsigned int *num_extents,
                          unsigned int *extents_start_arr,
                          unsigned int *extents_len_arr,
-                         unsigned long long *file_size) {
+                         unsigned long long *file_size,
+			 int *app_id) {
   const char *pos = strrchr(pathname, '/');
   char *mappings_path = malloc(MAX_PATH_LEN);
   char *relative_pathname = malloc(MAX_PATH_LEN);
@@ -186,7 +187,7 @@ static int is_registered(const char *pathname, unsigned int *num_extents,
   int ret = 0;
   *num_extents = 0;
   if (fp) {
-    while (fscanf(fp, "%s %s", real_file_name, virt_file_name) != EOF) {
+    while (fscanf(fp, "%s %s %d", real_file_name, virt_file_name, app_id) != EOF) {
       if (!strcmp(virt_file_name, relative_pathname)) {
         ret = 1;
         memmove(real_file_name + prefix_len, real_file_name,
@@ -210,10 +211,11 @@ static int is_registered(const char *pathname, unsigned int *num_extents,
 static int is_virtual_file(const char *pathname, unsigned int *num_extents,
                            unsigned int *extents_start_arr,
                            unsigned int *extents_len_arr,
-                           unsigned long long *file_size) {
+                           unsigned long long *file_size,
+			   int *app_id) {
   return is_from_nvme_fpga(pathname) &&
-         is_registered(pathname, num_extents, extents_start_arr,
-                       extents_len_arr, file_size);
+             is_registered(pathname, num_extents, extents_start_arr,
+                       extents_len_arr, file_size, app_id);
 }
 
 static void *allocate_kernel_buf(int *configfd) {
@@ -266,7 +268,7 @@ __inline__ static void update_metadata(int app_id) {
   is_eop[app_id] = metadata & 0x1;
 }
 
-const char *reg_virt_file(const char *real_path) {
+const char *reg_virt_file(int app_id, const char *real_path) {
   if (!is_from_nvme_fpga(real_path)) {
     return NULL;
   }
@@ -293,7 +295,7 @@ const char *reg_virt_file(const char *real_path) {
     strcat(virt_file_name, "_");
   }
   // update metadata
-  fprintf(fp, "%s %s\n", relative_real_path, virt_file_name);
+  fprintf(fp, "%s %s %d\n", relative_real_path, virt_file_name, app_id);
   // touch virtual file
   FILE *cmd_fp;
   char *cmd = malloc(MAX_CMD_LEN);
@@ -312,32 +314,33 @@ const char *reg_virt_file(const char *real_path) {
   return absolute_virt_file_path;
 }
 
-int iopen(int app_id, const char *pathname, int flags) {
+int iopen(const char *pathname, int flags) {
   unsigned int num_extents;
   unsigned int *extents_start_arr =
       malloc(sizeof(unsigned int) * MAX_EXTENT_NUM);
   unsigned int *extents_len_arr = malloc(sizeof(unsigned int) * MAX_EXTENT_NUM);
   unsigned long long length;
   long long offset;
-  int app_file_info_tag, app_buf_addrs_tag;
-
-  if (app_id == 0) {
-    app_file_info_tag = APP_FILE_INFO_0_TAG;
-    app_buf_addrs_tag = APP_BUF_ADDRS_0_TAG;
-  } else if (app_id == 1) {
-    app_file_info_tag = APP_FILE_INFO_1_TAG;
-    app_buf_addrs_tag = APP_BUF_ADDRS_1_TAG;
-  } else if (app_id == 2) {
-    app_file_info_tag = APP_FILE_INFO_2_TAG;
-    app_buf_addrs_tag = APP_BUF_ADDRS_2_TAG;
-  } else {
-    return -1;
-  }
+  int app_id;
 
   if (!is_virtual_file(pathname, &num_extents, extents_start_arr,
-                       extents_len_arr, &length)) {
+                       extents_len_arr, &length, &app_id)) {
     return -1;
   } else {
+    int app_file_info_tag, app_buf_addrs_tag;
+    if (app_id == 0) {
+      app_file_info_tag = APP_FILE_INFO_0_TAG;
+      app_buf_addrs_tag = APP_BUF_ADDRS_0_TAG;
+    } else if (app_id == 1) {
+      app_file_info_tag = APP_FILE_INFO_1_TAG;
+      app_buf_addrs_tag = APP_BUF_ADDRS_1_TAG;
+    } else if (app_id == 2) {
+      app_file_info_tag = APP_FILE_INFO_2_TAG;
+      app_buf_addrs_tag = APP_BUF_ADDRS_2_TAG;
+    } else {
+      return -1;
+    }
+
     int i;
     setup_mmio();
     for (i = 0; i < ALLOCATED_BUF_NUM; i++) {
