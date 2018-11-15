@@ -36,6 +36,7 @@ sudo cp STAccel/shell/* /usr/bin
 
 sudo mkdir /usr/include/insider
 sudo cp Insider/inc/* /usr/include/insider
+sudo cp Insider/shell/* /usr/bin
 cd Insider/lib; ./compile.sh; 
 sudo mv libinsider_runtime.so /usr/lib64;
 cd ../..;
