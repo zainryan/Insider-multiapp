@@ -12,7 +12,7 @@
     + [C-RTL Co-Simulation](#c-rtl-co-simulation)
 
 ## Restrictions
-As stated in our paper, we have not integrated the support of simultaneous multiple applications into Insider compiler. Instead, we provide a template that supports three concurrent applications; the user can replace the placeholder kernel with their application logic.
+We have not integrated the support of simultaneous multiple applications into Insider compiler. Instead, we provide a template that supports three concurrent applications; the user can replace the placeholder kernel with their application logic.
 
 This version is simply a **proof of concept**. Since it is not integrated with Insider compiler, the user needs to manually add the reset logic into their kernels which is somehow cumbersome. For the normal use case, please adopt the [single-application version](https://github.com/zainryan/Insider) which has the full end-to-end compilation support.
 
