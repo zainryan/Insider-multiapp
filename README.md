@@ -4,8 +4,7 @@
 
 - [Insider-multiapp](#insider-multiapp)
   * [Restrictions](#restrictions)
-  * [Preliminaries](#preliminaries)
-  * [BUILD and Installation](#build-and-installation)
+  * [Build from source](#build-from-source)
   * [Usage](#usage)
     + [Code Synthesis](#code-synthesis)
     + [C Simulation](#c-simulation)
@@ -16,11 +15,8 @@ We have not integrated the support of simultaneous multiple applications into In
 
 This version is simply a **proof of concept**. Since it is not integrated with Insider compiler, the user needs to manually add the reset logic into their kernels which is somehow cumbersome. For the normal use case, please adopt the [single-application version](https://github.com/zainryan/INSIDER-System) which has the full end-to-end compilation support.
 
-## Preliminaries
-The same as the [one](https://github.com/zainryan/INSIDER-System#preliminaries) in the single-application version.
-
-## BUILD and Installation
-The same as the [one](https://github.com/zainryan/INSIDER-System#build-and-installation) in the single-application version.
+## BUILD from Source
+The same as the [one](https://github.com/zainryan/INSIDER-System#build-from-source) in the single-application version.
 
 ## Usage
 
